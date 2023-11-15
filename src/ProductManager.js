@@ -51,6 +51,10 @@ export class ProductManager {
     }
   };
 
+  getAll = async () => {
+    return await this.getProducts();
+  };
+
   updateproduct = async (id, { ...data }) => {
     const products = await this.getProducts();
     const index = products.findIndex((product) => product.id === id);
