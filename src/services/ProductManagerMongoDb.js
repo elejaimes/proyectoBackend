@@ -1,34 +1,27 @@
-import { Products } from "../models/Products.js"; // Importar la clase Products
+import { Products, ProductModel } from "../models/ProductsMongoose.js";
 
-// Definición de la clase ProductManager
-export class ProductManager {
+// Clase ProductManager actualizada para usar Mongoose
+export class ProductManagerMongoDb {
   constructor() {
-    // Crear una instancia de la clase Products
-    this.productsInstance = new Products(this.path);
+    // No necesitas especificar la ruta del archivo JSON, ya que ahora usas MongoDB
+    // Elimina la línea this.path = "./products.json";
+    this.productsInstance = new Products();
   }
 
-  // Método para agregar un nuevo producto
   async addProduct(productData) {
     // Obtener el nuevo producto utilizando el método 'con' de la clase Products
-    const newProduct = this.productsInstance.con(productData);
+    const newProduct = await this.productsInstance.con(productData);
 
-    // Obtener la lista actual de productos desde el archivo utilizando la instancia de Products
-    const currentProducts = await this.productsInstance.getProducts();
-
-    // Agregar el nuevo producto a la lista
-    currentProducts.push(newProduct);
+    // Crear un nuevo documento en la colección MongoDB usando Mongoose
+    const createdProduct = await ProductModel.create(newProduct);
 
     // Devolver el nuevo producto agregado
-    return newProduct;
+    return createdProduct;
   }
 
-  // Método para obtener un producto por su ID
   async getProductById(id) {
-    // Obtener la lista completa de productos utilizando la instancia de Products
-    const productList = await this.productsInstance.getProducts();
-
-    // Buscar el producto con el ID proporcionado
-    const product = productList.find((product) => product.id === id);
+    // Obtener un producto por su ID desde la base de datos MongoDB
+    const product = await ProductModel.findById(id);
 
     // Devolver el producto si se encuentra, de lo contrario, imprimir un mensaje
     if (product) {
@@ -38,44 +31,30 @@ export class ProductManager {
     }
   }
 
-  // Método para obtener todos los productos
   async getAll() {
-    // Reutilizar el método 'toPOJO' de la clase Products para obtener todos los productos
-    const productList = await this.productsInstance.getProducts();
+    // Obtener todos los productos desde la base de datos MongoDB
+    const productList = await ProductModel.find();
     return this.productsInstance.toPOJO(productList);
   }
 
-  // Método para actualizar un producto por su ID
   async updateProduct(id, updatedData) {
-    // Obtener la lista actual de productos utilizando la instancia de Products
-    const products = await this.productsInstance.getProducts();
+    // Actualizar un producto por su ID en la base de datos MongoDB
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      id,
+      updatedData,
+      { new: true }
+    );
 
-    // Encontrar el índice del producto que se actualizará
-    const index = products.findIndex((product) => product.id === id);
-
-    // Actualizar el producto si se encuentra, de lo contrario, imprimir un mensaje
-    if (index !== -1) {
-      products[index] = this.productsInstance.con({ id, ...updatedData });
-
-      // Devolver el producto actualizado
-      return products[index];
-    } else {
-      console.log("Producto no encontrado");
-    }
+    // Devolver el producto actualizado
+    return updatedProduct;
   }
 
-  // Método para eliminar un producto por su ID
   async deleteProduct(id) {
-    // Obtener la lista actual de productos utilizando la instancia de Products
-    const products = await this.productsInstance.getProducts();
+    // Eliminar un producto por su ID de la base de datos MongoDB
+    const deletedProduct = await ProductModel.findByIdAndDelete(id);
 
-    // Encontrar el índice del producto que se eliminará
-    const index = products.findIndex((product) => product.id === id);
-
-    // Eliminar el producto si se encuentra, de lo contrario, imprimir un mensaje
-    if (index !== -1) {
-      products.splice(index, 1);
-    } else {
+    // Manejar el caso en que el producto no se encuentra
+    if (!deletedProduct) {
       console.log("Producto no encontrado");
     }
   }

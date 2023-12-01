@@ -1,5 +1,5 @@
 import { promises as fs } from "fs";
-import { Products } from "../models/Products.js"; // Importar la clase Products
+import { Products } from "../models/ProductsMongoose.js"; // Importar la clase Products
 
 // Definición de la clase ProductManager
 export class ProductManager {

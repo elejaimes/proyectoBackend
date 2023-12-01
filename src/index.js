@@ -2,21 +2,30 @@
 import express from "express";
 import { engine } from "express-handlebars";
 import { Server as IOServer } from "socket.io";
-import { ProductManager } from "./services/ProductManager.js";
+//import { ProductManager } from "./services/ProductManager.js";
 import { CartManager } from "./services/cartManager.js";
 import { productsRouter } from "./routes/products.router.js";
 import { cartsRouter } from "./routes/carts.router.js";
 import { webRouter } from "./routes/web.router.js";
-
-// Definición del puerto en el que se ejecutará el servidor
-const PORT = 8080;
+import { ProductManagerMongoDb } from "./services/ProductManagerMongoDb.js";
+import { mongoose } from "mongoose";
+import { MONGODB_CNX_STR, PORT } from "./config.js";
 
 // Creación de instancias para gestionar productos y carritos
-export const productManager = new ProductManager();
+//export const productManager = new ProductManager();
+export const productManager = new ProductManagerMongoDb();
 export const cartManager = new CartManager();
+
+await mongoose.connect(MONGODB_CNX_STR);
+console.log(`Base de datos conectada a ${MONGODB_CNX_STR}`);
 
 // Creación de una instancia de Express
 const app = express();
+
+// Inicio del servidor Express en el puerto especificado
+const server = app.listen(PORT, () => {
+  console.log(`Servidor conectado en el puerto ${PORT}`);
+});
 
 // Configuración del motor de vistas y directorio de vistas
 app.engine("handlebars", engine());
@@ -33,11 +42,6 @@ app.use(express.json());
 app.use("/api/products", productsRouter); // Ruta para la API de productos (http://localhost:8080/api/products)
 app.use("/api/carts", cartsRouter); // Ruta para la API de carritos
 app.use("/", webRouter); // Ruta para el enrutador web
-
-// Inicio del servidor Express en el puerto especificado
-const server = app.listen(PORT, () => {
-  console.log(`Servidor conectado en el puerto ${PORT}`);
-});
 
 // Creación de una instancia de Socket.IO asociada al servidor Express
 const ioServer = new IOServer(server);
