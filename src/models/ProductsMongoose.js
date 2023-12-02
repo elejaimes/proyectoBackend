@@ -1,18 +1,25 @@
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from "uuid";
+
 const { Schema, model } = mongoose;
 
 // Define el esquema de los productos
-const productSchema = new Schema({
-  id: { type: String, required: true, unique: true },
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  code: { type: String, required: true },
-  price: { type: Number, required: true },
-  status: { type: Boolean, default: true },
-  stock: { type: Number, required: true },
-  category: { type: String, required: true },
-  thumbnail: { type: String, required: true },
-});
+const productSchema = new Schema(
+  {
+    _id: { type: String, required: true, unique: true },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    code: { type: String, required: true },
+    price: { type: Number, required: true },
+    status: { type: Boolean, default: true },
+    stock: { type: Number, required: true },
+    category: { type: String, required: true },
+    thumbnail: { type: String, required: false },
+  },
+  {
+    versionKey: false,
+  }
+);
 
 // Define el modelo de productos
 const ProductModel = model("Product", productSchema);
@@ -23,10 +30,8 @@ export { productSchema, ProductModel };
 // Clase Products actualizada para usar Mongoose
 export class Products {
   async con(productData) {
-    // Generar un nuevo ID único utilizando la biblioteca uuid
-    const id = uuidv4();
-    // Devolver un nuevo objeto de producto con las propiedades proporcionadas y el ID único
-    return { id, ...productData };
+    // Devolver un nuevo objeto de producto con las propiedades proporcionadas
+    return productData;
   }
 
   async getProducts() {

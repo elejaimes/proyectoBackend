@@ -1,4 +1,5 @@
 import { Products, ProductModel } from "../models/ProductsMongoose.js";
+import { v4 as uuidv4 } from "uuid";
 
 // Clase ProductManager actualizada para usar Mongoose
 export class ProductManagerMongoDb {
@@ -9,14 +10,21 @@ export class ProductManagerMongoDb {
   }
 
   async addProduct(productData) {
-    // Obtener el nuevo producto utilizando el método 'con' de la clase Products
-    const newProduct = await this.productsInstance.con(productData);
+    try {
+      // Generar un nuevo _id único utilizando la biblioteca uuid
+      const newId = uuidv4();
 
-    // Crear un nuevo documento en la colección MongoDB usando Mongoose
-    const createdProduct = await ProductModel.create(newProduct);
+      // Asignar el nuevo _id al objeto productData
+      productData._id = newId;
 
-    // Devolver el nuevo producto agregado
-    return createdProduct;
+      // Crear un nuevo documento en la colección MongoDB usando Mongoose
+      const createdProduct = await ProductModel.create(productData);
+
+      // Devolver el nuevo producto agregado
+      return createdProduct;
+    } catch (error) {
+      throw new Error(`Error al agregar el producto: ${error.message}`);
+    }
   }
 
   async getProductById(id) {
