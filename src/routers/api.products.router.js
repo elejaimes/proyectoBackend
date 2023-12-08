@@ -5,6 +5,7 @@ import { ProductModel } from "../models/ProductsMongoose.js";
 // Creación de una instancia de Router para manejar las rutas relacionadas con los productos
 export const apiProductsRouter = Router();
 
+// Ruta para obtener todos los productos con paginación, filtrado y ordenamiento ("/")
 apiProductsRouter.get("/", async (req, res) => {
   let options = {};
 
@@ -18,7 +19,7 @@ apiProductsRouter.get("/", async (req, res) => {
   options = { ...filter, ...prodPerPage, ...pag, ...order };
 
   try {
-    const paginated = await products.paginate({}, options);
+    const paginated = await ProductModel.paginate({}, options);
 
     const resources = {
       status: "success",
@@ -40,8 +41,16 @@ apiProductsRouter.get("/", async (req, res) => {
   }
 });
 
-// Ruta para obtener todos los productos ("/")
-apiProductsRouter.get("/", async (req, res) => {
+// Ruta para obtener todas las categorías ("/cat")
+apiProductsRouter.get("/cat", async (req, res) => {
+  const productsCategory = await ProductModel.aggregate([
+    { $group: { _id: "$category" } },
+  ]);
+  res.json(productsCategory);
+});
+
+// Ruta para obtener todos los productos ("/all")
+apiProductsRouter.get("/all", async (req, res) => {
   const products = await ProductModel.find();
   res.json(products);
 });
@@ -90,6 +99,7 @@ apiProductsRouter.delete("/:pid", async (req, res) => {
   res.json(deletedProduct);
 });
 
+// Ruta para actualizar la foto de un producto por su ID ("/:pid/photoUrl")
 apiProductsRouter.post(
   "/:pid/photoUrl",
   extractFile("photoUrl"),
