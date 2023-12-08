@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { CartModel } from "../models/CartsMongoose.js";
+import mongoose from "mongoose";
 
 export const apiCartsRouter = Router();
 
-//Mostrar todos los carritos
+// Mostrar todos los carritos ("/api/carts")
 apiCartsRouter.get("/", async (req, res) => {
   try {
     const populatedCarts = await CartModel.find()
@@ -22,7 +23,7 @@ apiCartsRouter.get("/", async (req, res) => {
   }
 });
 
-// Obtener un carrito por su ID ("/:cid")
+// Obtener un carrito por su ID ("/api/carts/:cid")
 apiCartsRouter.get("/:cid", async (req, res) => {
   try {
     const { cid } = req.params;
@@ -34,13 +35,13 @@ apiCartsRouter.get("/:cid", async (req, res) => {
       })
       .lean();
 
-    // Verificar si el carrito existe
     if (!populatedCart) {
       return res.status(404).json({ message: "Carrito no encontrado" });
     }
 
     res.json(populatedCart);
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       message: "Error al obtener el carrito",
       error: error.message,
@@ -48,12 +49,13 @@ apiCartsRouter.get("/:cid", async (req, res) => {
   }
 });
 
-// Ruta para crear un nuevo carrito vacío ("/create-cart")
+// Ruta para crear un nuevo carrito vacío ("/api/carts/create-cart")
 apiCartsRouter.post("/", async (req, res) => {
   try {
     const createdCart = await CartModel.create(req.body);
     res.status(201).json(createdCart);
   } catch (error) {
+    console.error(error);
     res.status(400).json({
       message: "Error al crear un nuevo carrito",
       error: error.message,
@@ -61,7 +63,20 @@ apiCartsRouter.post("/", async (req, res) => {
   }
 });
 
-// Cargar producto a un carrito por ID con Id del producto y cantidad
+// Ruta para obtener todas las categorías de productos en los carritos ("/api/carts/categories")
+apiCartsRouter.get("/categories", async (req, res) => {
+  try {
+    const categories = await CartModel.distinct("cartItems.productId.category");
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al obtener las categorías de productos en los carritos",
+      error: error.message,
+    });
+  }
+});
+
+// Cargar producto a un carrito por ID con Id del producto y cantidad ("/api/carts/:cid/cartItems/:productId")
 apiCartsRouter.put("/:cid/cartItems/:productId", async (req, res) => {
   try {
     const { cid, productId } = req.params;
@@ -73,17 +88,13 @@ apiCartsRouter.put("/:cid/cartItems/:productId", async (req, res) => {
     });
 
     if (existingCartItem) {
-      // Si ya existe el producto en el carrito, actualiza la cantidad
       const updatedCart = await CartModel.findOneAndUpdate(
         { _id: cid, "cartItems.productId": productId },
-        {
-          $inc: { "cartItems.$.quantity": quantity },
-        },
+        { $inc: { "cartItems.$.quantity": quantity } },
         { new: true, useFindAndModify: false }
       );
       res.json(updatedCart);
     } else {
-      // Si no existe, añade un nuevo elemento al carrito
       const updatedCart = await CartModel.findByIdAndUpdate(
         cid,
         {
@@ -96,6 +107,7 @@ apiCartsRouter.put("/:cid/cartItems/:productId", async (req, res) => {
       res.json(updatedCart);
     }
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       message: "Error al actualizar el carrito",
       error: error.message,
@@ -106,46 +118,34 @@ apiCartsRouter.put("/:cid/cartItems/:productId", async (req, res) => {
 // Ruta para eliminar todos los productos del carrito ("/api/carts/:cid")
 apiCartsRouter.delete("/:cid", async (req, res) => {
   try {
-    // Intenta encontrar y eliminar el carrito por su ID
     const deletedCart = await CartModel.findByIdAndDelete(req.params.cid);
 
-    // Si el carrito no se encuentra, responde con un código de estado 404 y un mensaje
     if (!deletedCart) {
       return res.status(404).json({ message: "Carrito no encontrado" });
     }
 
-    // Si la eliminación es exitosa, responde con el carrito eliminado en formato JSON
     res.json(deletedCart);
   } catch (error) {
-    // Si hay un error durante la operación, responde con un código de estado 500 y un mensaje de error
     console.error(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 });
 
-//Eliminar un producto del carrito por ID:
-
+// Eliminar un producto del carrito por ID ("/api/carts/:cid/cartItems/:productId")
 apiCartsRouter.delete("/:cid/cartItems/:productId", async (req, res) => {
   try {
     const { cid, productId } = req.params;
 
     const cartItem = await CartModel.findOneAndUpdate(
       { _id: cid, "cartItems.productId": productId },
-      {
-        $inc: { "cartItems.$.quantity": -1 }, // Resta 1 a la cantidad
-      },
+      { $inc: { "cartItems.$.quantity": -1 } },
       { new: true, useFindAndModify: false }
     );
 
-    // Si la cantidad llega a 0, elimina el elemento del carrito
     if (cartItem.cartItems[0].quantity === 0) {
       const updatedCart = await CartModel.findByIdAndUpdate(
         cid,
-        {
-          $pull: {
-            cartItems: { productId },
-          },
-        },
+        { $pull: { cartItems: { productId } } },
         { new: true, useFindAndModify: false }
       );
       res.json(updatedCart);
@@ -153,8 +153,55 @@ apiCartsRouter.delete("/:cid/cartItems/:productId", async (req, res) => {
       res.json(cartItem);
     }
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       message: "Error al eliminar el producto del carrito",
+      error: error.message,
+    });
+  }
+});
+
+// Ruta para obtener todos los productos en el carrito ("/:cid/allProducts")
+apiCartsRouter.get("/:cid/allProducts", async (req, res) => {
+  try {
+    const { cid } = req.params;
+
+    const cartProducts = await CartModel.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(cid) } },
+      { $unwind: "$cartItems" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "cartItems.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" },
+      {
+        $group: {
+          _id: "$_id",
+          cartItems: { $push: "$cartItems" },
+          totalPrice: {
+            $sum: {
+              $multiply: ["$cartItems.quantity", "$productDetails.price"],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          cartItems: 1,
+          totalPrice: 1,
+        },
+      },
+    ]);
+
+    res.json(cartProducts[0]);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al obtener los productos en el carrito",
       error: error.message,
     });
   }
