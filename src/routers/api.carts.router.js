@@ -161,13 +161,11 @@ apiCartsRouter.delete("/:cid/cartItems/:productId", async (req, res) => {
   }
 });
 
-// Ruta para obtener todos los productos en el carrito ("/:cid/allProducts")
-apiCartsRouter.get("/:cid/allProducts", async (req, res) => {
+// Ruta para obtener todos los productos en el carrito ("/:cid/allCarts")
+apiCartsRouter.get("/allCarts", async (req, res) => {
   try {
-    const { cid } = req.params;
-
     const cartProducts = await CartModel.aggregate([
-      { $match: { _id: mongoose.Types.ObjectId(cid) } },
+      { $match: { status: true } },
       { $unwind: "$cartItems" },
       {
         $lookup: {

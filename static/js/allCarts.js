@@ -1,17 +1,15 @@
-const rutaFetch = "http://localhost:8080/api/carritos/carritosActivos";
-const rutaFetchNewCarrito = "http://localhost:8080/api/carritos";
+const pathFetch = "http://localhost:8080/api/carts/allCarts";
+const pathFetchNewCart = "http://localhost:8080/api/carts";
 
-document.getElementById("newCarrito").addEventListener("click", newCarrito);
-document
-  .getElementById("listaCarritos")
-  .addEventListener("click", selectCarrito);
+document.getElementById("newCart").addEventListener("click", newCart);
+document.getElementById("cartList").addEventListener("click", selectCart);
 
-async function loadCarritos() {
+async function loadCarts() {
   try {
-    const resp = await fetch(rutaFetch);
+    const resp = await fetch(pathFetch);
     const data = await resp.json();
 
-    const targetDOM = document.getElementById("listaCarritos");
+    const targetDOM = document.getElementById("cartList");
     targetDOM.innerHTML = "";
 
     if (data.length > 0) {
@@ -34,32 +32,29 @@ async function loadCarritos() {
     }
   } catch (error) {
     console.error("Error al cargar carritos:", error);
-    // Puedes agregar un mensaje de error al usuario si lo deseas
   }
 }
 
-function selectCarrito(e) {
+function selectCart(e) {
   const selectedId = e.target.id;
   if (selectedId !== "") {
-    document.getElementById("carritoActivo").value = selectedId;
-    localStorage.setItem("carrito", JSON.stringify(selectedId));
-    window.location = "/productos";
+    document.getElementById("allCarts").value = selectedId;
+    localStorage.setItem("cart", JSON.stringify(selectedId));
+    window.location = "/products";
   }
 }
 
-async function newCarrito() {
+async function newCart() {
   try {
-    const resp = await fetch(rutaFetchNewCarrito, { method: "POST" });
+    const resp = await fetch(pathFetchNewCart, { method: "POST" });
     const data = await resp.json();
 
     const newID = data._id;
-    localStorage.setItem("carrito", JSON.stringify(newID));
-    window.location = "/productos";
+    localStorage.setItem("cart", JSON.stringify(newID));
+    window.location = "/products";
   } catch (error) {
     console.error("Error al crear un nuevo carrito:", error);
-    // Puedes agregar un mensaje de error al usuario si lo deseas
   }
 }
 
-// Llamar a loadCarritos al cargar la página
-loadCarritos();
+loadCarts();

@@ -1,19 +1,19 @@
-const idCarrito = JSON.parse(localStorage.getItem("carrito"));
-const rutaFetch = "http://localhost:8080/api/carritos/";
+const idCart = JSON.parse(localStorage.getItem("carts"));
+const pathFetch = "http://localhost:8080/api/carts/";
 
-document.getElementById("delCarrito").addEventListener("click", deleteCart);
-getCarritoInfo();
+document.getElementById("deleteCart").addEventListener("click", deleteCart);
+getCartInfo();
 
-function getCarritoInfo() {
-  document.getElementById("carritoID").innerText = `Carrito ID ${idCarrito}`;
-  const targetDOM = document.getElementById("listaProductos");
+function getCartInfo() {
+  document.getElementById("cartId").innerText = `Carrito ID ${idCart}`;
+  const targetDOM = document.getElementById("productList");
   targetDOM.innerHTML = "";
-  targetDOM.addEventListener("click", botonera);
+  targetDOM.addEventListener("click", buttonActions);
 
-  fetch(`${rutaFetch}${idCarrito}`)
+  fetch(`${pathFetch}${idCart}`)
     .then((resp) => resp.json())
     .then((data) => {
-      data.carrito.forEach((elem) => {
+      data.carts.forEach((elem) => {
         const newElement = createTableRow(elem);
         targetDOM.appendChild(newElement);
       });
@@ -26,7 +26,7 @@ function createTableRow(elem) {
     <th scope="row">${elem.productID.title}</th>
     <td>${elem.productID.description}</td>
     <td>${elem.productID.category}</td>
-    <td>${elem.productID.title}</td>
+    <td>${elem.productID.code}</td>
     <td style="text-align: center;">${elem.cant}</td>
     <td>
       <button type="button" class="btn btn-secondary" id="del${elem._id}">
@@ -44,14 +44,14 @@ function createTableRow(elem) {
   return newElement;
 }
 
-function botonera(e) {
+function buttonActions(e) {
   const selectedId = e.target.id;
   const action = selectedId.substring(0, 3);
   const id = selectedId.substring(3);
 
   if (action === "del") {
-    const rutaDelete = `${rutaFetch}${idCarrito}/producto/${id}`;
-    deleteProduct(rutaDelete);
+    const deletePath = `${pathFetch}${idCart}/product/${id}`;
+    deleteProduct(deletePath);
   } else if (action === "upd") {
     renderEditFilds(e, id);
   } else if (action === "sav") {
@@ -59,22 +59,22 @@ function botonera(e) {
   }
 }
 
-function deleteProduct(rutaDelete) {
-  fetch(rutaDelete, {
+function deleteProduct(deletePath) {
+  fetch(deletePath, {
     method: "DELETE",
   })
     .then((resp) => resp.json())
     .then(() => {
       showToast("Producto Eliminado");
-      getCarritoInfo();
+      getCartInfo();
     });
 }
 
 function updateProduct(id) {
   const valorUpdate = document.getElementById("edit" + id).value;
-  const rutaUpdate = `${rutaFetch}${idCarrito}/producto/${id}`;
+  const updatePath = `${pathFetch}${idCart}/product/${id}`;
 
-  fetch(rutaUpdate, {
+  fetch(updatePath, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -116,7 +116,7 @@ function renderEditFilds(domElement, id) {
 }
 
 function deleteCart() {
-  fetch(`${rutaFetch}${idCarrito}`, {
+  fetch(`${pathFetch}${idCart}`, {
     method: "DELETE",
   })
     .then((resp) => resp.json())
