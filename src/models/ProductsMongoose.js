@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import { randomUUID } from "crypto";
-import { mongoosePaginate } from "mongoose-paginate-v2";
+import mongoosePaginate from "mongoose-paginate-v2";
 
 // Define el esquema de los productos
 const productSchema = new Schema(

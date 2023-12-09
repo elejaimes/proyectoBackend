@@ -1,32 +1,16 @@
-{{!-- <div class="container">
-    <div>
-        <h2>Lista de Productos</h2>
-            <br>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">PRODUCTO</th>
-                        <th scope="col">DESCRIPCION</th>
-                        <th scope="col">CODIGO</th>
-                        <th scope="col">PRECIO</th>
-                        <th scope="col">STOCK</th>
-                        <th scope="col">CATEGORIA</th>
-                    </tr>
-                </thead>
-                <tbody id="productsTable">
-                    {{#each productos}}
-                    <tr>
-                        <th scope="row">{{this.id}}</th>
-                        <td>{{this.title}}</td>
-                        <td>{{this.description}}</td>
-                        <td>{{this.code}}</td>
-                        <td>{{this.price}}</td>
-                        <td>{{this.stock}}</td>
-                        <td>{{this.category}}</td>
-                    </tr>
-                    {{/each}}
-                </tbody>
-            </table>
+<h1>Bienvenido a la tienda de Postres</h1>
+
+<div class="card w-75" style="margin:0 auto">
+    <h5 class="card-header">Carritos Activos</h5>
+    <div class="card-body" id="carritosActivos">
+        <table class="table table-hover">
+            <tbody id="listaCarritos">
+            </tbody>
+        </table>
     </div>
-</div> --}}
+    <div class="card-footer text-body-secondary" style="text-align:right;">
+        <button type="button" class="btn btn-warning" id="newCarrito">Nuevo Carrito</button>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/js/carritosActivos.js"></script>
