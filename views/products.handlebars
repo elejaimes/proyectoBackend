@@ -1,7 +1,8 @@
 <div class="container mt-4">
   <!-- Filtrado -->
   <div class="mb-3">
-    <form action="/products" method="GET">
+    <form action="/products" method="GET" id="filterForm">
+    <input type="hidden" id="currentPage" name="page" value="{{response.page}}">
       <div class="form-row">
         <!-- Opción de búsqueda -->
         <div class="col">
@@ -44,7 +45,7 @@
 
         <!-- Botón de enviar -->
         <div class="col">
-          <button type="submit" class="btn btn-primary">Filtrar</button>
+          <button type="button" class="btn btn-primary" id="filterButton">Filtrar</button>
         </div>
       </div>
     </form>

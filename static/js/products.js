@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const orderSelect = document.getElementById("order");
   const form = document.getElementById("filterForm");
   const productContainer = document.getElementById("productContainer");
+  const filterButton = document.getElementById("filterButton");
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -20,6 +21,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   orderSelect.addEventListener("change", function () {
+    handleSearchAndFilter();
+  });
+
+  filterButton.addEventListener("click", function () {
     handleSearchAndFilter();
   });
 
