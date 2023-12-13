@@ -1,66 +1,111 @@
+<div class="container mt-4">
+  <!-- Filtrado -->
+  <div class="mb-3">
+    <form action="/products" method="GET">
+      <div class="form-row">
+        <!-- Opción de búsqueda -->
+        <div class="col">
+          <label for="search">Búsqueda:</label>
+          <input type="text" class="form-control" id="search" name="search" placeholder="Buscar...">
+        </div>
 
-<div class="container">
-  <div class="card">
-    <div class="card-header">
-      Listado de Productos
-    </div>
-    <!-- FILTROS -->
-    <div class="accordion accordion-flush" id="accordionFlushExample">
-      <div class="accordion-item">
-        <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-            data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-            Filtros
-          </button>
-        </h2>
-        <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-          <div class="accordion-body">
-            <table class="table">
-              <tbody>
-                <tr>
-                  <th>
-                    <!-- CANTIDAD DE PAGINAS A MOSTRAR -->
-                    Productos por página
-                    <select class="form-select" aria-label="Default select example" id="setPages"></select>
-                  </th>
-                  <th>
-                    <!-- CATEGORIA A MOSTRAR -->
-                    Categoría
-                    <select class="form-select" aria-label="Default select example" id="setCategories"></select>
-                  </th>
-                  <th>
-                    <!-- ORDEN POR PRECIO -->
-                    Orden
-                    <select class="form-select" aria-label="Default select example" id="setOrder"></select>
-                  </th>
-                </tr>
-              </tbody>
-            </table>
-            <button type="button" class="btn btn-primary" id="applyFilter">Filtrar</button>
+        <!-- Opción de categoría -->
+        <div class="col">
+          <label for="category">Categoría:</label>
+          <select class="form-control" id="categoryFilter" name="category">
+            <option value="All">Todas las categorías</option>
+            <option value="Panadería">Panadería</option>
+            <option value="Pastelería">Pastelería</option>
+            <option value="Postres">Postres</option>
+            <option value="Repostería">Repostería</option>
+            <option value="Heladería">Heladería</option>
+            <option value="Bebidas">Bebidas</option>
+          </select>
+        </div>
+
+        <!-- Opción de orden -->
+        <div class="col">
+          <label for="sort">Ordenar por:</label>
+          <select class="form-control" id="sort" name="sort">
+            <option value="price">Precio</option>
+            <option value="status">Estado</option>
+            <option value="stock">Inventario</option>
+          </select>
+        </div>
+
+        <!-- Opción de dirección de orden -->
+        <div class="col">
+          <label for="order">Dirección de orden:</label>
+          <select class="form-control" id="order" name="order">
+            <option value="asc">Ascendente</option>
+            <option value="desc">Descendente</option>
+          </select>
+        </div>
+
+        <!-- Botón de enviar -->
+        <div class="col">
+          <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Cards de productos -->
+  <div class="row" id="productContainer">
+    {{#each products}}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <img src="{{photoUrl}}" class="card-img-top" alt="{{title}}">
+          <div class="card-body">
+            <h5 class="card-title">{{title}}</h5>
+            <p class="card-text">{{description}}</p>
+            <p class="card-text">Precio: ${{price}}</p>
+            <!-- Botón de agregar al carrito -->
+            <form action="/carts/{{response.cart._id}}/{{_id}}" method="POST">
+              <div class="form-row align-items-center">
+                <div class="col-auto">
+                  <label class="sr-only" for="quantity{{_id}}">Cantidad</label>
+                  <input type="number" class="form-control mb-2" id="quantity{{_id}}" name="quantity" value="1" min="1">
+                </div>
+                <div class="col-auto">
+                  <button type="submit" class="btn btn-success mb-2">Agregar al carrito</button>
+                </div>
+              </div>
+            </form>
+            <a href="/products/{{_id}}" class="btn btn-primary">Ver detalles</a>
           </div>
         </div>
       </div>
-      <div class="card-body">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Producto</th>
-              <th scope="col">Descripción</th>
-              <th scope="col">Categoria</th>
-              <th scope="col">Precio</th>
-              <th scope="col">Stock</th>
-              <th scope="col">Agregar al Carrito</th>
-            </tr>
-          </thead>
-          <tbody id="productsContainer"></tbody>
-        </table>
-      </div>
-      <div class="card-footer text-body-secondary">
-        <nav aria-label="Page navigation example">
-          <ul class="pagination justify-content-end" id="navBar"></ul>
-        </nav>
-      </div>
-    </div>
+    {{/each}}
   </div>
-</div>
-<script type="text/javascript" src="/static/js/index.js"></script>
+
+<!-- Paginación -->
+<nav aria-label="Page navigation">
+  <ul class="pagination mt-4 justify-content-center">
+    {{#if response.hasPrevPage}}
+      <li class="page-item">
+        <a class="page-link" href="{{response.prevLink}}" aria-label="Anterior">
+          <span aria-hidden="true">&laquo; Anterior</span>
+        </a>
+      </li>
+    {{/if}}
+
+    {{#each response.pages}}
+      <li class="page-item {{#if isActive}}active{{/if}}">
+        <a class="page-link" href="/products?page={{number}}&limit={{../response.limit}}">{{number}}</a>
+      </li>
+    {{/each}}
+
+    {{#if response.hasNextPage}}
+      <li class="page-item">
+        <a class="page-link" href="{{response.nextLink}}" aria-label="Siguiente">
+          <span aria-hidden="true">Siguiente &raquo;</span>
+        </a>
+      </li>
+    {{/if}}
+  </ul>
+</nav>
+
+
+
+<script type="text/javascript" src="/static/js/products.js"></script> 

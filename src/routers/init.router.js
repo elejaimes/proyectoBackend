@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { CartModel } from "../models/CartsMongoose.js";
 import { ProductModel } from "../models/ProductsMongoose.js";
+import { randomUUID } from "crypto";
 
 export const initRouter = Router();
 
@@ -578,8 +579,27 @@ const dataSet = [
 ];
 
 initRouter.get("/", async (req, res) => {
-  await CartModel.deleteMany();
-  await ProductModel.deleteMany();
-  await ProductModel.insertMany(dataSet);
-  res.send("Base de datos creada");
+  try {
+    // Elimina todos los documentos de las colecciones
+    await CartModel.deleteMany();
+    await ProductModel.deleteMany();
+
+    // Itera sobre el dataSet e inserta cada documento por separado
+    for (const data of dataSet) {
+      // Genera un nuevo ID aleatorio utilizando crypto
+      data._id = randomUUID();
+
+      // Inserta el documento en la base de datos
+      await ProductModel.create(data);
+      console.log("Documento insertado:", data.title);
+    }
+
+    res.send("Base de datos creada");
+  } catch (error) {
+    console.error(
+      "Error durante la inicialización de la base de datos:",
+      error
+    );
+    res.status(500).send("Error durante la inicialización de la base de datos");
+  }
 });

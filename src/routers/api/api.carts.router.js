@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CartModel } from "../models/CartsMongoose.js";
+import { CartModel } from "../../models/CartsMongoose.js";
 import mongoose from "mongoose";
 
 export const apiCartsRouter = Router();
@@ -77,7 +77,7 @@ apiCartsRouter.get("/categories", async (req, res) => {
 });
 
 // Cargar producto a un carrito por ID con Id del producto y cantidad ("/api/carts/:cid/cartItems/:productId")
-apiCartsRouter.put("/:cid/cartItems/:productId", async (req, res) => {
+apiCartsRouter.put("/:cid/:productId", async (req, res) => {
   try {
     const { cid, productId } = req.params;
     const quantity = req.body.quantity || 1;
@@ -161,46 +161,47 @@ apiCartsRouter.delete("/:cid/cartItems/:productId", async (req, res) => {
   }
 });
 
-// Ruta para obtener todos los productos en el carrito ("/:cid/allCarts")
-apiCartsRouter.get("/allCarts", async (req, res) => {
-  try {
-    const cartProducts = await CartModel.aggregate([
-      { $match: { status: true } },
-      { $unwind: "$cartItems" },
-      {
-        $lookup: {
-          from: "products",
-          localField: "cartItems.productId",
-          foreignField: "_id",
-          as: "productDetails",
-        },
-      },
-      { $unwind: "$productDetails" },
-      {
-        $group: {
-          _id: "$_id",
-          cartItems: { $push: "$cartItems" },
-          totalPrice: {
-            $sum: {
-              $multiply: ["$cartItems.quantity", "$productDetails.price"],
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          cartItems: 1,
-          totalPrice: 1,
-        },
-      },
-    ]);
+// // Ruta para obtener todos los productos en el carrito ("/:cid/allCarts")
+// apiCartsRouter.get("/allCarts", async (req, res) => {
+//   try {
+//     const cartProducts = await CartModel.aggregate([
+//       //descompone el array cartItems del carrito, crea un documento separado para cada elemento
+//       { $unwind: "$cartItems" },
+//       //realiza una operación de unión
+//       {
+//         $lookup: {
+//           from: "products",
+//           localField: "cartItems.productId",
+//           foreignField: "_id",
+//           as: "productDetails",
+//         },
+//       },
+//       { $unwind: "$productDetails" },
+//       {
+//         $group: {
+//           _id: "$_id",
+//           cartItems: { $push: "$cartItems" },
+//           totalPrice: {
+//             $sum: {
+//               $multiply: ["$cartItems.quantity", "$productDetails.price"],
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           cartItems: 1,
+//           totalPrice: 1,
+//         },
+//       },
+//     ]);
 
-    res.json(cartProducts[0]);
-  } catch (error) {
-    res.status(500).json({
-      message: "Error al obtener los productos en el carrito",
-      error: error.message,
-    });
-  }
-});
+//     res.json(cartProducts[0]);
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Error al obtener los productos en el carrito",
+//       error: error.message,
+//     });
+//   }
+// });
