@@ -21,7 +21,12 @@ webProductsRouter.get("/products", async (req, res) => {
       "Bebidas",
     ];
 
-    category = category === "All" ? [...categoryOptions] : category.split(",");
+    category =
+      category === "All"
+        ? [...categoryOptions]
+        : typeof category === "string"
+        ? category.split(",")
+        : categoryOptions;
 
     const validSortFields = ["price", "status", "stock"];
     if (!validSortFields.includes(sortField)) {
@@ -50,15 +55,22 @@ webProductsRouter.get("/products", async (req, res) => {
     const prevPage = hasPrevPage ? page - 1 : null;
     const nextPage = hasNextPage ? page + 1 : null;
     const prevLink = hasPrevPage
-      ? `/products?page=${prevPage}&limit=${limit}`
+      ? `/products?page=${prevPage}&limit=${limit}&search=${search}&category=${category.join(
+          ","
+        )}&sort=${sortField}&order=${sortOrder}`
       : null;
     const nextLink = hasNextPage
-      ? `/products?page=${nextPage}&limit=${limit}`
+      ? `/products?page=${nextPage}&limit=${limit}&search=${search}&category=${category.join(
+          ","
+        )}&sort=${sortField}&order=${sortOrder}`
       : null;
     const pages = [];
     for (let i = 1; i <= totalPages; i++) {
       pages.push({
         number: i,
+        link: `/products?page=${i}&limit=${limit}&search=${search}&category=${category.join(
+          ","
+        )}&sort=${sortField}&order=${sortOrder}`,
         isActive: i === page,
       });
     }

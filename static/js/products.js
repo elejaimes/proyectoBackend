@@ -1,117 +1,139 @@
+// Función para manejar el boton de ver detalle
 document.addEventListener("DOMContentLoaded", function () {
-  const searchInput = document.getElementById("search");
-  const categoryFilter = document.getElementById("categoryFilter");
-  const sortSelect = document.getElementById("sort");
-  const orderSelect = document.getElementById("order");
-  const form = document.getElementById("filterForm");
-  const productContainer = document.getElementById("productContainer");
-  const filterButton = document.getElementById("filterButton");
+  // Agrega un evento de clic para cada botón "Ver detalles"
+  const viewDetailsButtons = document.querySelectorAll(".view-details");
+  viewDetailsButtons.forEach((button) => {
+    button.addEventListener("click", function (event) {
+      event.preventDefault();
+      const productId = this.getAttribute("data-product");
+      const detailsContainer = document.getElementById(`details_${productId}`);
 
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    handleSearchAndFilter();
-  });
+      // Si el contenedor de detalles está visible, ocúltalo; de lo contrario, muéstralo
+      if (detailsContainer.style.display === "block") {
+        detailsContainer.style.display = "none";
+      } else {
+        // Oculta todos los detalles antes de mostrar el seleccionado
+        document.querySelectorAll(".details-container").forEach((container) => {
+          container.style.display = "none";
+        });
 
-  categoryFilter.addEventListener("change", function () {
-    handleSearchAndFilter();
-  });
-
-  sortSelect.addEventListener("change", function () {
-    handleSearchAndFilter();
-  });
-
-  orderSelect.addEventListener("change", function () {
-    handleSearchAndFilter();
-  });
-
-  filterButton.addEventListener("click", function () {
-    handleSearchAndFilter();
-  });
-
-  function handleSearchAndFilter() {
-    const searchValue = searchInput.value;
-    const categoryValue = categoryFilter.value;
-    const sortValue = sortSelect.value;
-    const orderValue = orderSelect.value;
-
-    // Construir la URL de la solicitud AJAX con parámetros opcionales
-    let url = `/products?`;
-
-    // Agregar parámetros si tienen valores específicos
-    if (searchValue) {
-      url += `search=${encodeURIComponent(searchValue)}&`;
-    }
-    if (categoryValue !== "All") {
-      url += `category=${encodeURIComponent(categoryValue)}&`;
-    }
-    if (sortValue) {
-      url += `sort=${encodeURIComponent(sortValue)}&`;
-    }
-    if (orderValue) {
-      url += `order=${encodeURIComponent(orderValue)}`;
-    }
-
-    // Realizar la solicitud AJAX al servidor para obtener resultados de búsqueda y filtrado
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        updateUI(data);
-      })
-      .catch((error) => {
-        console.error("Error en la solicitud AJAX:", error);
-      });
-  }
-
-  function updateUI(data) {
-    // Limpiar el contenido existente
-    productContainer.innerHTML = "";
-
-    // Verificar si hay resultados
-    if (data.products.length === 0) {
-      productContainer.innerHTML = "<p>No se encontraron resultados.</p>";
-      return;
-    }
-
-    // Iterar sobre los productos y agregarlos al contenedor
-    data.products.forEach((product) => {
-      const card = createProductCard(product);
-      productContainer.appendChild(card);
+        // Muestra los detalles del producto seleccionado
+        detailsContainer.style.display = "block";
+      }
     });
-  }
-
-  function createProductCard(product) {
-    // Crear un elemento div para la tarjeta del producto
-    const card = document.createElement("div");
-    card.classList.add("col-md-4", "mb-4");
-
-    // Estructura de la tarjeta (usando la plantilla Handlebars)
-    card.innerHTML = `
-      <div class="card">
-        <img src="${product.photoUrl}" class="card-img-top" alt="${product.title}">
-        <div class="card-body">
-          <h5 class="card-title">${product.title}</h5>
-          <p class="card-text">${product.description}</p>
-          <p class="card-text">Precio: $${product.price}</p>
-          <!-- Botón de agregar al carrito -->
-          <form action="/carts/${response.cart._id}/${product._id}" method="POST">
-            <div class="form-row align-items-center">
-              <div class="col-auto">
-                <label class="sr-only" for="quantity${product._id}">Cantidad</label>
-                <input type="number" class="form-control mb-2" id="quantity${product._id}" name="quantity" value="1" min="1">
-              </div>
-              <div class="col-auto">
-                <button type="submit" class="btn btn-success mb-2">Agregar al carrito</button>
-              </div>
-            </div>
-          </form>
-          <a href="/products/${product._id}" class="btn btn-primary">Ver detalles</a>
-        </div>
-      </div>
-    `;
-
-    return card;
-  }
+  });
 });
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   const searchInput = document.getElementById("search");
+//   const categoryFilter = document.getElementById("categoryFilter");
+//   const sortSelect = document.getElementById("sort");
+//   const orderSelect = document.getElementById("order");
+//   const form = document.getElementById("filterForm");
+//   const productContainer = document.getElementById("productContainer");
+
+//   form.addEventListener("submit", function (event) {
+//     event.preventDefault();
+//     handleSearchAndFilter();
+//   });
+
+//   categoryFilter.addEventListener("change", function () {
+//     handleSearchAndFilter();
+//   });
+
+//   sortSelect.addEventListener("change", function () {
+//     handleSearchAndFilter();
+//   });
+
+//   orderSelect.addEventListener("change", function () {
+//     handleSearchAndFilter();
+//   });
+
+//   function handleSearchAndFilter() {
+//     const searchValue = searchInput.value;
+//     const categoryValue = categoryFilter.value;
+//     const sortValue = sortSelect.value;
+//     const orderValue = orderSelect.value;
+
+//     // Construir la URL de la solicitud AJAX con parámetros opcionales
+//     let url = `/products?`;
+
+//     // Agregar parámetros si tienen valores específicos
+//     if (searchValue) {
+//       url += `search=${encodeURIComponent(searchValue)}&`;
+//     }
+//     if (categoryValue !== "All") {
+//       url += `category=${encodeURIComponent(categoryValue)}&`;
+//     }
+//     if (sortValue) {
+//       url += `sort=${encodeURIComponent(sortValue)}&`;
+//     }
+//     if (orderValue) {
+//       url += `order=${encodeURIComponent(orderValue)}`;
+//     }
+
+//     // Realizar la solicitud AJAX al servidor para obtener resultados de búsqueda y filtrado
+//     fetch(url)
+//       .then((response) => response.json())
+//       .then((data) => {
+//         updateUI(data);
+//       })
+//       .catch((error) => {
+//         console.error("Error en la solicitud AJAX:", error);
+//       });
+//   }
+
+//   function updateUI(data) {
+//     console.log(data);
+//     // Limpiar el contenido existente
+//     productContainer.innerHTML = "";
+
+//     // Verificar si hay resultados
+//     if (data.products.length === 0) {
+//       productContainer.innerHTML = "<p>No se encontraron resultados.</p>";
+//       return;
+//     }
+
+//     // Iterar sobre los productos y agregarlos al contenedor
+//     data.products.forEach((product) => {
+//       const card = createProductCard(product);
+//       productContainer.appendChild(card);
+//     });
+//   }
+
+//   function createProductCard(product) {
+//     // Crear un elemento div para la tarjeta del producto
+//     const card = document.createElement("div");
+//     card.classList.add("col-md-4", "mb-4");
+
+//     // Estructura de la tarjeta (usando la plantilla Handlebars)
+//     card.innerHTML = `
+//       <div class="card">
+//         <img src="${product.photoUrl}" class="card-img-top" alt="${product.title}">
+//         <div class="card-body">
+//           <h5 class="card-title">${product.title}</h5>
+//           <p class="card-text">${product.description}</p>
+//           <p class="card-text">Precio: $${product.price}</p>
+//           <!-- Botón de agregar al carrito -->
+//           <form action="/carts/${response.cart._id}/${product._id}" method="POST">
+//             <div class="form-row align-items-center">
+//               <div class="col-auto">
+//                 <label class="sr-only" for="quantity${product._id}">Cantidad</label>
+//                 <input type="number" class="form-control mb-2" id="quantity${product._id}" name="quantity" value="1" min="1">
+//               </div>
+//               <div class="col-auto">
+//                 <button type="submit" class="btn btn-success mb-2">Agregar al carrito</button>
+//               </div>
+//             </div>
+//           </form>
+//           <a href="/products/${product._id}" class="btn btn-primary">Ver detalles</a>
+//         </div>
+//       </div>
+//     `;
+
+//     return card;
+//   }
+// });
 
 // // // Script de control del cliente
 // // const rutaFetch = "http://localhost:8080/productos/";
