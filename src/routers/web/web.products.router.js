@@ -6,7 +6,7 @@ export const webProductsRouter = Router();
 webProductsRouter.get("/products", async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-    const limit = Math.max(parseInt(req.query.limit, 10) || 5, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 6, 1);
     const search = req.query.search || "";
     let sortField = req.query.sort || "Price";
     let sortOrder = req.query.order || "asc";
