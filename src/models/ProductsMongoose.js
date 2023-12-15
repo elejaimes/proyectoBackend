@@ -2,6 +2,8 @@ import { Schema, model } from "mongoose";
 import { randomUUID } from "crypto";
 import mongoosePaginate from "mongoose-paginate-v2";
 
+const collection = "products";
+
 // Define el esquema de los productos
 const productSchema = new Schema(
   {
@@ -24,4 +26,4 @@ const productSchema = new Schema(
 productSchema.plugin(mongoosePaginate);
 
 // Define el modelo de productos y se exporta
-export const ProductModel = model("products", productSchema);
+export const ProductModel = model(collection, productSchema);

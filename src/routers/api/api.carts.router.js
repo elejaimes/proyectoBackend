@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { CartModel } from "../../models/CartsMongoose.js";
-import mongoose from "mongoose";
 
 export const apiCartsRouter = Router();
 

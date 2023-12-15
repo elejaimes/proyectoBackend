@@ -1,6 +1,8 @@
 import { Schema, model } from "mongoose";
 import { randomUUID } from "crypto";
 
+const collection = "carts";
+
 // Define el esquema de los carritos
 
 const cartItemSchema = new Schema({
@@ -21,4 +23,4 @@ const cartSchema = new Schema(
 );
 
 // Define el modelo de cartos y se exporta
-export const CartModel = model("carts", cartSchema);
+export const CartModel = model(collection, cartSchema);

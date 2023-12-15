@@ -1,9 +1,10 @@
-import express, { urlencoded } from "express";
+import express from "express";
 import { connect } from "mongoose";
 import { MONGODB_CNX_STR, PORT } from "./config.js";
 import { apiRouter } from "./routers/api/api.router.js";
 import { webRouter } from "./routers/web/web.router.js";
 import { engine } from "express-handlebars";
+import { sessions } from "./middlewares/sessions.js";
 
 // Conexión a la Base de Datos
 try {
@@ -14,10 +15,7 @@ try {
   process.exit(1);
 }
 
-const app = express();
-
-app.use(express.json());
-app.use(urlencoded({ extended: true }));
+export const app = express();
 
 // Configuración del motor de vistas y directorio de vistas
 app.engine("handlebars", engine());
@@ -26,6 +24,9 @@ app.set("views", "./views");
 
 // Configuración de middleware para manejar archivos estáticos
 app.use("/static", express.static("./static"));
+
+// Configuración de middleware de sesiones
+app.use(sessions);
 
 // Configuración de middleware para las rutas de la API
 app.use("/api", apiRouter);
