@@ -6,22 +6,34 @@ export const apiSessionsRouter = Router();
 apiSessionsRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const registeredUser = await UserModel.findOne({ email }).lean();
+  let registeredUserData;
 
-  if (!registeredUser) {
-    return res.status(400).json({ status: "error", message: "login failed" });
+  if (email === "admin@admin.com" && password === "admin1234") {
+    registeredUserData = {
+      email: "admin",
+      firstName: "admin",
+      lastName: "admin",
+      rol: "admin",
+    };
+  } else {
+    const registeredUser = await UserModel.findOne({ email }).lean();
+
+    if (!registeredUser) {
+      return res.status(400).json({ status: "error", message: "login failed" });
+    }
+
+    // aqui más adelante debo encriptar la recibida y comparar con la que ya está encriptada
+    if (password !== registeredUser.password) {
+      return res.status(400).json({ status: "error", message: "login failed" });
+    }
+
+    registeredUserData = {
+      email: registeredUser.email,
+      firstName: registeredUser.firstName,
+      lastName: registeredUser.lastName,
+      rol: "user",
+    };
   }
-
-  // aqui más adelante debo encriptar la recibida y comparar con la que ya está encriptada
-  if (password !== registeredUser.password) {
-    return res.status(400).json({ status: "error", message: "login failed" });
-  }
-
-  const registeredUserData = {
-    email: registeredUser.email,
-    firstName: registeredUser.firstName,
-    lastName: registeredUser.lastName,
-  };
 
   // aqui se crea la session en caso de que el usuario y contraseña sean correctos
   req.session["registeredUser"] = registeredUserData;
@@ -37,10 +49,10 @@ apiSessionsRouter.get("/current", (req, res) => {
     .json({ status: "error", message: "No hay una sesión iniciada" });
 });
 
-apiSessionsRouter.post("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ status: "logout error", body: err });
+apiSessionsRouter.delete("/current", (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      return res.status(500).json({ status: "logout error", body: error });
     }
     res.json({ status: "success", message: "logout OK" });
   });

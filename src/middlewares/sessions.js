@@ -1,15 +1,33 @@
 import session from "express-session";
 import connectMongo from "connect-mongo";
-import { MONGODB_CNX_STR } from "../config.js";
+import { MONGODB_CNX_STR, SESSION_SECRET } from "../config.js";
 
 const store = connectMongo.create({
   mongoUrl: MONGODB_CNX_STR,
-  ttl: 100,
+  ttl: 60 * 60 * 24, // 1d,
 });
 
 export const sessions = session({
   store,
-  secret: "SecretCoder", // ojo este es la palabra secreta para firmar la cookie
-  resave: true,
-  saveUninitialized: true,
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
 });
+
+export function loggedUserApi(req, res, next) {
+  if (!req.session["registeredUser"]) {
+    return res
+      .status(400)
+      .json({ status: "error", message: "necesita iniciar sesion" });
+  }
+
+  next();
+}
+
+export function loggedUserWeb(req, res, next) {
+  if (!req.session["registeredUser"]) {
+    return res.redirect("/login");
+  }
+
+  next();
+}
