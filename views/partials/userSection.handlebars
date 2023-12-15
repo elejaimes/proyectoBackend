@@ -1,0 +1,15 @@
+{{#if user}}
+  <div class="container mt-2 mb-4">
+    <div class="alert alert-success" role="alert">
+      <p class="mb-0">Bienvenido, {{user.firstName}} {{user.lastName}}.</p>
+    </div>
+  </div>
+{{/if}}
+
+{{#unless user}}
+  <div class="container mt-2 mb-4">
+    <div class="alert alert-info" role="alert">
+      <p class="mb-0">¿No estás registrado? <a href="/register">Regístrate</a> o <a href="/login">inicia sesión</a>.</p>
+    </div>
+  </div>
+{{/unless}}
