@@ -28,7 +28,7 @@ apiSessionsRouter.post("/login", async (req, res) => {
   res.status(201).json({ status: "success", message: "login success" });
 });
 
-apiSessionsRouter.get("/", (req, res) => {
+apiSessionsRouter.get("/current", (req, res) => {
   if (req.session["registeredUser"]) {
     return res.json(req.session["registeredUser"]);
   }
