@@ -1,4 +1,5 @@
 import express from "express";
+import bodyParser from "body-parser";
 import { connect } from "mongoose";
 import { MONGODB_CNX_STR, PORT } from "./config.js";
 import { apiRouter } from "./routers/api/api.router.js";
@@ -24,6 +25,9 @@ app.set("views", "./views");
 
 // Configuración de middleware para manejar archivos estáticos
 app.use("/static", express.static("./static"));
+
+// Configuración de middleware para analizar el cuerpo de la solicitud
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Configuración de middleware de sesiones
 app.use(sessions);

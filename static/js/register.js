@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
 
     try {
-      const response = await fetch("/api/usuarios", {
+      const response = await fetch("/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

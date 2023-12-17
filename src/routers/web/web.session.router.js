@@ -26,12 +26,12 @@ webSessionRouter.post("/login", async (req, res) => {
       const registeredUser = await UserModel.findOne({ email }).lean();
 
       if (!registeredUser) {
-        return res.redirect("/login");
+        return res.status(401).json({ message: "Invalid email or password" });
       }
 
-      // deberia encriptar la recibida y comparar con la guardada que ya esta encriptada
+      // Deberías usar alguna librería para comparar contraseñas seguras en lugar de esta comparación simple
       if (password !== registeredUser.password) {
-        return res.redirect("/login");
+        return res.status(401).json({ message: "Invalid email or password" });
       }
 
       registeredUserData = {
@@ -43,9 +43,11 @@ webSessionRouter.post("/login", async (req, res) => {
     }
 
     req.session["registeredUser"] = registeredUserData;
-    res.redirect("/products");
+    console.log(req.session);
+    res.status(200).json({ redirect: "/products" }); // Devuelve la ruta de redirección
   } catch (error) {
-    res.redirect("/login");
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
@@ -53,6 +55,11 @@ webSessionRouter.post("/login", async (req, res) => {
 
 webSessionRouter.post("/logout", (req, res) => {
   req.session.destroy((error) => {
+    if (error) {
+      console.error("Error destroying session:", error);
+    } else {
+      console.log("Session destroyed successfully");
+    }
     res.redirect("/login");
   });
 });

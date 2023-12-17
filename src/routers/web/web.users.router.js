@@ -25,6 +25,6 @@ webUsersRouter.post("/register", async (req, res) => {
 
 webUsersRouter.get("/products", (req, res) => {
   res.render("products.handlebars", {
-    user: req.session["registeredUser"],
+    registeredUser: req.session["registeredUser"],
   });
 });

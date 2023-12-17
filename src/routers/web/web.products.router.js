@@ -89,7 +89,11 @@ webProductsRouter.get("/products", async (req, res) => {
       nextLink,
     };
 
-    res.render("products", { products, response });
+    res.render("products", {
+      products,
+      response,
+      registeredUser: req.session["registeredUser"],
+    });
   } catch (error) {
     console.error(error);
     res.status(500).render("error", { error });

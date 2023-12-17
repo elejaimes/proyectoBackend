@@ -11,13 +11,21 @@ document.addEventListener("DOMContentLoaded", () => {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams(new FormData(formLogin)),
+        credentials: "include",
       });
 
-      if (response.status === 201) {
-        window.location.href = "/products";
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        if (response.ok) {
+          window.location.href = data.redirect; // Manejar la redirección
+          console.log("Redirecting to products page");
+        } else {
+          alert(data.message);
+        }
       } else {
-        const error = await response.json();
-        alert(error.message);
+        console.error("Unexpected response:", response);
+        alert("An unexpected error occurred during login.");
       }
     } catch (error) {
       console.error("Error during login:", error);
