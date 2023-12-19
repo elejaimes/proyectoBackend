@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { UserModel } from "../../models/User.js";
+import { comparePassword } from "../../utils/crypto.js";
 
 export const webSessionRouter = Router();
 
@@ -29,8 +30,12 @@ webSessionRouter.post("/login", async (req, res) => {
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
-      // Deberías usar alguna librería para comparar contraseñas seguras en lugar de esta comparación simple
-      if (password !== registeredUser.password) {
+      const isPasswordCorrect = await comparePassword(
+        password,
+        registeredUser.password
+      );
+
+      if (!isPasswordCorrect) {
         return res.status(401).json({ message: "Invalid email or password" });
       }
 

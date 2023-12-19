@@ -1,11 +1,14 @@
 import { Router } from "express";
 import { UserModel } from "../../models/User.js";
 import { loggedUserApi } from "../../middlewares/sessions.js";
+import { hashearPassword } from "../../utils/crypto.js";
 
 export const apiUsersRouter = Router();
 
 apiUsersRouter.post("/", async (req, res) => {
   try {
+    const hashedPassword = await hashearPassword(req.body.password);
+    req.body.password = hashedPassword;
     const user = await UserModel.create(req.body);
     res.status(201).json({ status: "success", payload: user });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { UserModel } from "../../models/User.js";
+import { comparePassword } from "../../utils/crypto.js";
 
 export const apiSessionsRouter = Router();
 
@@ -22,9 +23,13 @@ apiSessionsRouter.post("/login", async (req, res) => {
       return res.status(400).json({ status: "error", message: "login failed" });
     }
 
-    // aqui más adelante debo encriptar la recibida y comparar con la que ya está encriptada
-    if (password !== registeredUser.password) {
-      return res.status(400).json({ status: "error", message: "login failed" });
+    const isPasswordCorrect = await comparePassword(
+      password,
+      registeredUser.password
+    );
+
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
     registeredUserData = {
