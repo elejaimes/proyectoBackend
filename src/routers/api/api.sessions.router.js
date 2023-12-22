@@ -40,25 +40,44 @@ apiSessionsRouter.post("/login", async (req, res) => {
     };
   }
 
-  // aqui se crea la session en caso de que el usuario y contraseña sean correctos
-  req.session["registeredUser"] = registeredUserData;
-  res.status(201).json({ status: "success", message: "login success" });
+  //Usamos passport para la sesión con el método login
+
+  req.login(registeredUser, (error) => {
+    if (error) {
+      return res.redirect("/login");
+    }
+    res.redirect("/products");
+  });
+
+  // aqui se crea la session en caso de que el usuario y contraseña sean correctos hecho sin passport
+  // req.session["registeredUser"] = registeredUserData;
+  // res.status(201).json({ status: "success", message: "login success" });
 });
 
 apiSessionsRouter.get("/current", (req, res) => {
-  if (req.session["registeredUser"]) {
-    return res.json(req.session["registeredUser"]);
+  //con passport
+  if (req.isAuthenticated()) {
+    return res.json(req.user);
   }
+  //sin passport
+  // if (req.session["registeredUser"]) {
+  //   return res.json(req.session["registeredUser"]);
+  // }
   res
     .status(400)
     .json({ status: "error", message: "No hay una sesión iniciada" });
 });
 
 apiSessionsRouter.delete("/current", (req, res) => {
-  req.session.destroy((error) => {
-    if (error) {
-      return res.status(500).json({ status: "logout error", body: error });
-    }
-    res.json({ status: "success", message: "logout OK" });
-  });
+  //con passport
+  req.logout();
+  res.json({ status: "success", message: "logout OK" });
+
+  // sin passport
+  // req.session.destroy((error) => {
+  //   if (error) {
+  //     return res.status(500).json({ status: "logout error", body: error });
+  //   }
+  //   res.json({ status: "success", message: "logout OK" });
+  // });
 });

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { UserModel } from "../../models/User.js";
-import { loggedUserApi } from "../../middlewares/sessions.js";
+import { loggedUserApi } from "../../middlewares/auth.js";
 import { hashearPassword } from "../../utils/crypto.js";
 
 export const apiUsersRouter = Router();
@@ -18,7 +18,10 @@ apiUsersRouter.post("/", async (req, res) => {
 
 apiUsersRouter.get("/current", loggedUserApi, async (req, res) => {
   const user = await UserModel.findOne(
-    { email: req.session["registeredUser"].email },
+    //con passport
+    { email: req.user.email },
+    //sin passport
+    // { email: req.session["registeredUser"].email },
     { password: 0 }
   ).lean();
   res.json({ status: "success", payload: user });

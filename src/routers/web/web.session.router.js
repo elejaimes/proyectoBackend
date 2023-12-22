@@ -46,10 +46,18 @@ webSessionRouter.post("/login", async (req, res) => {
         rol: "user",
       };
     }
+    //con passport
+    req.login(registeredUser, (error) => {
+      if (error) {
+        return res.redirect("/login");
+      }
+      res.status(200).json({ redirect: "/products" }); // Devuelve la ruta de redirección
+    });
 
-    req.session["registeredUser"] = registeredUserData;
-    console.log(req.session);
-    res.status(200).json({ redirect: "/products" }); // Devuelve la ruta de redirección
+    //sin passport
+    // req.session["registeredUser"] = registeredUserData;
+    // console.log(req.session);
+    // res.status(200).json({ redirect: "/products" }); // Devuelve la ruta de redirección
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -58,13 +66,24 @@ webSessionRouter.post("/login", async (req, res) => {
 
 // logout
 
+//con passport
 webSessionRouter.post("/logout", (req, res) => {
-  req.session.destroy((error) => {
+  req.logout((error) => {
     if (error) {
-      console.error("Error destroying session:", error);
-    } else {
-      console.log("Session destroyed successfully");
+      console.error("Error al cerrar sesión: ", error);
     }
     res.redirect("/login");
   });
 });
+
+//sin passport
+// webSessionRouter.post("/logout", (req, res) => {
+//   req.session.destroy((error) => {
+//     if (error) {
+//       console.error("Error destroying session:", error);
+//     } else {
+//       console.log("Session destroyed successfully");
+//     }
+//     res.redirect("/login");
+//   });
+// });

@@ -92,7 +92,7 @@ webProductsRouter.get("/products", async (req, res) => {
     res.render("products", {
       products,
       response,
-      registeredUser: req.session["registeredUser"],
+      registeredUser: req.user,
     });
   } catch (error) {
     console.error(error);

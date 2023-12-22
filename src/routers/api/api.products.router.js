@@ -69,41 +69,6 @@ apiProductsRouter.get("/", async (req, res) => {
   }
 });
 
-// apiProductsRouter.get("/", async (req, res) => {
-//   let options = {};
-
-//   const filter = req.query.filter ? { category: req.query.filter } : {};
-//   const prodPerPage = req.query.prodPerPage
-//     ? { limit: req.query.prodPerPage }
-//     : { limit: 10 };
-//   const pag = req.query.pag ? { page: req.query.pag } : { page: 1 };
-//   const order = req.query.order ? { sort: { price: req.query.order } } : {};
-
-//   options = { ...filter, ...prodPerPage, ...pag, ...order };
-
-//   try {
-//     const paginated = await ProductModel.paginate({}, options);
-
-//     const resources = {
-//       status: "success",
-//       payload: paginated.docs,
-//       totalPages: paginated.totalPages,
-//       prevPage: paginated.prevPage,
-//       nextPage: paginated.nextPage,
-//       page: paginated.page,
-//       hasPrevPage: paginated.hasPrevPage,
-//       hasNextPage: paginated.hasNextPage,
-//       prevLink: "",
-//       nextLink: "",
-//     };
-
-//     res.json(resources);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ status: "error", message: "Internal Server Error" });
-//   }
-// });
-
 // Ruta para obtener todas las categorías ("/cat")
 apiProductsRouter.get("/cat", async (req, res) => {
   const productsCategory = await ProductModel.aggregate([

@@ -6,6 +6,7 @@ import { apiRouter } from "./routers/api/api.router.js";
 import { webRouter } from "./routers/web/web.router.js";
 import { engine } from "express-handlebars";
 import { sessions } from "./middlewares/sessions.js";
+import { authentication } from "./middlewares/passport.js";
 
 // Conexión a la Base de Datos
 try {
@@ -31,6 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Configuración de middleware de sesiones
 app.use(sessions);
+app.use(authentication);
 
 // Configuración de middleware para las rutas de la API
 app.use("/api", apiRouter);

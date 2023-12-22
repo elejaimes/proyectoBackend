@@ -13,21 +13,3 @@ export const sessions = session({
   resave: false,
   saveUninitialized: false,
 });
-
-export function loggedUserApi(req, res, next) {
-  if (!req.session["registeredUser"]) {
-    return res
-      .status(400)
-      .json({ status: "error", message: "necesita iniciar sesion" });
-  }
-
-  next();
-}
-
-export function loggedUserWeb(req, res, next) {
-  if (!req.session["registeredUser"]) {
-    return res.redirect("/login");
-  }
-
-  next();
-}
