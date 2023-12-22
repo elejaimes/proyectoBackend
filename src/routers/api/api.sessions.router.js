@@ -42,7 +42,7 @@ apiSessionsRouter.post("/login", async (req, res) => {
 
   //Usamos passport para la sesión con el método login
 
-  req.login(registeredUser, (error) => {
+  req.login(registeredUserData, (error) => {
     if (error) {
       return res.redirect("/login");
     }

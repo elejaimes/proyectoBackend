@@ -47,7 +47,7 @@ webSessionRouter.post("/login", async (req, res) => {
       };
     }
     //con passport
-    req.login(registeredUser, (error) => {
+    req.login(registeredUserData, (error) => {
       if (error) {
         return res.redirect("/login");
       }
