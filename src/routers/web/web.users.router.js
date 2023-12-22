@@ -20,8 +20,16 @@ webUsersRouter.post("/register", async (req, res) => {
 
     const newUser = await UserModel.create(req.body);
 
-    // Redirigir a la página deseada después del registro y la autenticación
-    res.redirect("/login");
+    // Iniciar sesión después de registrar al usuario
+    req.login(newUser, (error) => {
+      if (error) {
+        console.error("Error al iniciar sesión después del registro:", error);
+        return res.redirect("/login");
+      }
+
+      // Redirigir a la página deseada después del registro y la autenticación
+      res.status(200).json({ redirect: "/products" });
+    });
   } catch (error) {
     console.error("Error al registrar usuario:", error);
     res.redirect("/register");

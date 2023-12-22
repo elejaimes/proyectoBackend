@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (response.status === 201) {
-        window.location.href = "/login";
+        window.location.href = "/products";
       } else {
         const error = await response.json();
         alert(error.message);

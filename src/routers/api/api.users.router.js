@@ -10,8 +10,22 @@ apiUsersRouter.post("/", async (req, res) => {
     const hashedPassword = await hashearPassword(req.body.password);
     req.body.password = hashedPassword;
     const user = await UserModel.create(req.body);
-    res.status(201).json({ status: "success", payload: user });
+
+    // Iniciar sesión después de registrar al usuario
+    req.login(user, (error) => {
+      if (error) {
+        console.error("Error al iniciar sesión después del registro:", error);
+        return res
+          .status(500)
+          .json({ status: "error", message: "Internal Server Error" });
+      }
+      // Redirigir a la página deseada después del registro y la autenticación
+      res
+        .status(201)
+        .json({ status: "success", payload: user, redirect: "/products" });
+    });
   } catch (error) {
+    console.error("Error al registrar usuario:", error);
     res.status(400).json({ status: "error", message: error.message });
   }
 });
