@@ -1,12 +1,4 @@
 export function loggedUserApi(req, res, next) {
-  //sin passport
-  // if (!req.session["registeredUser"]) {
-  //   return res
-  //     .status(400)
-  //     .json({ status: "error", message: "necesita iniciar sesion" });
-  // }
-
-  //con passport
   if (!req.isAuthenticated()) {
     return res
       .status(400)
@@ -16,17 +8,22 @@ export function loggedUserApi(req, res, next) {
 }
 
 export function loggedUserWeb(req, res, next) {
-  //sin passport
-  // if (!req.session["registeredUser"]) {
-  //   return res.redirect("/login");
-  // }
-
-  //con passport
   if (!req.isAuthenticated()) {
-    // Almacena la URL de redirección en la sesión antes de redirigir
     req.session.redirectTo = req.originalUrl;
     return res.redirect("/login");
   }
-
   next();
+}
+
+export function loggedAdmin(req, res, next) {
+  if (req.user.rol !== "admin") {
+    return res
+      .status(403)
+      .json({ status: "error", message: "solo para admins" });
+  }
+  next();
+}
+
+export function isAdmin(username, password) {
+  return username === "admin@admin.com" && password === "admin1234";
 }

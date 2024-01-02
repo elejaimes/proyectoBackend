@@ -1,6 +1,6 @@
 import { Router } from "express";
+import passport from "passport";
 import { UserModel } from "../../models/User.js";
-import { hashearPassword } from "../../utils/crypto.js";
 
 export const webUsersRouter = Router();
 
@@ -12,38 +12,15 @@ webUsersRouter.get("/register", (req, res) => {
   });
 });
 
-webUsersRouter.post("/register", async (req, res) => {
-  try {
-    //encriptar contraseña
-    const hashedPassword = await hashearPassword(req.body.password);
-    req.body.password = hashedPassword;
+webUsersRouter.post(
+  "/register",
+  passport.authenticate("register", {
+    successRedirect: "/products",
+    failureRedirect: "/register",
+  })
+);
 
-    const newUser = await UserModel.create(req.body);
-
-    // Iniciar sesión después de registrar al usuario
-    req.login(newUser, (error) => {
-      if (error) {
-        console.error("Error al iniciar sesión después del registro:", error);
-        return res.redirect("/login");
-      }
-
-      // Redirigir a la página deseada después del registro y la autenticación
-      res.status(200).json({ redirect: "/products" });
-    });
-  } catch (error) {
-    console.error("Error al registrar usuario:", error);
-    res.redirect("/register");
-  }
-
-  //sin passport
-  //   await UserModel.create(req.body);
-  //   res.redirect("/login");
-  // } catch (error) {
-  //   res.redirect("/register");
-  // }
-});
-
-// reestablecer contraseña
+//Restablecer contraseña
 
 webUsersRouter.get("/resetpassword", async (req, res) => {
   res.render("resetpassword.handlebars", {
@@ -53,32 +30,11 @@ webUsersRouter.get("/resetpassword", async (req, res) => {
 
 webUsersRouter.post("/resetpassword", async (req, res) => {
   try {
-    //encriptar contraseña
-    const hashedPassword = await hashearPassword(req.body.password);
-    req.body.password = hashedPassword;
-
-    const updatedUserPassword = await UserModel.findOneAndUpdate(
-      { email: req.body.email },
-      { $set: { password: req.body.password } },
-      { new: true }
-    ).lean();
-
-    if (!updatedUserPassword) {
-      res.render("resetpassword.handlebars", {
-        pageTitle: "Reestablecer contraseña",
-        errorMessage: "Usuario no encontrado",
-      });
-    } else {
-      // Usuario encontrado y contraseña actualizada con éxito
-      console.log("Contraseña actualizada con éxito:", updatedUserPassword);
-      res.redirect("/login");
-    }
+    await UserModel.resetPassword(req.body.email, req.body.password);
+    res.redirect("/login");
   } catch (error) {
-    console.error(error);
-    res.render("resetpassword.handlebars", {
-      pageTitle: "Reestablecer contraseña",
-      errorMessage: "Hubo un error al procesar la solicitud",
-    });
+    console.log(error);
+    res.redirect("/resetpassword");
   }
 });
 
@@ -86,7 +42,6 @@ webUsersRouter.post("/resetpassword", async (req, res) => {
 
 webUsersRouter.get("/products", (req, res) => {
   res.render("products.handlebars", {
-    //registeredUser: req.session["registeredUser"], //sin passport
-    registeredUser: req.user, //con passport
+    registeredUser: req.user,
   });
 });
