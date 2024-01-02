@@ -1,10 +1,53 @@
 import passport from "passport";
-import { Strategy } from "passport-local";
+import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as GithubStrategy } from "passport-github2";
 import { UserModel } from "../models/User.js";
+import {
+  githubCallbackUrl,
+  githubClientId,
+  githubClientSecret,
+} from "../config.js";
+
+passport.use(
+  "github",
+  new GithubStrategy(
+    {
+      clientID: githubClientId,
+      clientSecret: githubClientSecret,
+      callbackURL: githubCallbackUrl,
+    },
+    async function verify(accessToken, refreshToken, profile, done) {
+      console.log(profile);
+
+      const user = await UserModel.findOne({ email: profile.username });
+      if (user) {
+        return done(null, {
+          ...user.infoPublica(),
+          rol: "user",
+        });
+      }
+
+      try {
+        const registeredUser = await UserModel.create({
+          email: profile.username,
+          password: "(sin especificar)",
+          firstName: profile.displayName,
+          lastName: "(sin especificar)",
+        });
+        done(null, {
+          ...registeredUser.infoPublica(),
+          rol: "user",
+        });
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);
 
 passport.use(
   "register",
-  new Strategy(
+  new LocalStrategy(
     {
       passReqToCallback: true,
       usernameField: "email",
@@ -22,7 +65,7 @@ passport.use(
 
 passport.use(
   "login",
-  new Strategy(
+  new LocalStrategy(
     {
       usernameField: "email",
     },

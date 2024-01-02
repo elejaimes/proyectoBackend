@@ -16,6 +16,15 @@ const userSchema = new Schema(
   {
     strict: "throw",
     versionKey: false,
+    methods: {
+      infoPublica: function () {
+        return {
+          email: this.email,
+          firstName: this.firstName,
+          lastName: this.lastName,
+        };
+      },
+    },
     statics: {
       register: async function (reqBody) {
         reqBody.password = await hashearPassword(reqBody.password);

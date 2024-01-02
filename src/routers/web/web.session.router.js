@@ -3,7 +3,7 @@ import passport from "passport";
 
 export const webSessionRouter = Router();
 
-//login
+//login local
 
 webSessionRouter.get("/login", function loginView(req, res) {
   res.render("login.handlebars", {
@@ -14,6 +14,21 @@ webSessionRouter.get("/login", function loginView(req, res) {
 webSessionRouter.post(
   "/login",
   passport.authenticate("login", {
+    successRedirect: "/products",
+    failureRedirect: "/login",
+  })
+);
+
+//login github
+
+webSessionRouter.get(
+  "/githublogin",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
+
+webSessionRouter.get(
+  "/githubcallback",
+  passport.authenticate("github", {
     successRedirect: "/products",
     failureRedirect: "/login",
   })
