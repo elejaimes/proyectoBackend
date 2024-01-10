@@ -94,8 +94,3 @@ document.addEventListener("DOMContentLoaded", function () {
 function isCartEmpty(cartItems) {
   return cartItems.length === 0;
 }
-
-function formatCurrency(amount) {
-  // Lógica para formatear el precio a moneda (por ejemplo, utilizando toFixed, Intl.NumberFormat, etc.)
-  return amount.toFixed(2); // Ejemplo básico, puedes personalizar según tus necesidades
-}

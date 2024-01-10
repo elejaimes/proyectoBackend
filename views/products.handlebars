@@ -65,7 +65,7 @@
             <p class="card-text">Stock: {{stock}}</p>
             <p class="card-text">Categoría: {{category}}</p>
             <!-- Otros detalles del producto según sea necesario -->
-            <form action="/carts/{{response.cart._id}}/{{_id}}" method="POST">
+            <form action="/user-cart/{{_id}}" method="POST">
               <div class="form-row align-items-center">
                 <div class="col-auto">
                   <label class="sr-only" for="quantity{{_id}}">Cantidad</label>

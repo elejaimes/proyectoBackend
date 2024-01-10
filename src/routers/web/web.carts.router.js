@@ -50,33 +50,6 @@ webCartsRouter.get("/allCarts/:cartId", loggedAdmin, async (req, res) => {
   }
 });
 
-// // Crear un carrito o redirigir a carrito ya existente
-// webCartsRouter.post("/carts/create", loggedUserWeb, async (req, res) => {
-//   try {
-//     const userId = req.user._id;
-
-//     // Verifica si el usuario ya tiene un carrito
-//     const existingCart = await CartModel.findOne({ user: userId });
-
-//     if (existingCart) {
-//       // Si el usuario ya tiene un carrito, redirige a la página de visualización del carrito
-//       return res.redirect(`/carts/${existingCart._id}`);
-//     }
-
-//     // Crea un nuevo carrito para el usuario
-//     const newCart = await CartModel.create({ user: userId, cartItems: [] });
-
-//     // Redirige a la página de visualización del carrito recién creado
-//     res.redirect(`/carts/${newCart._id}`);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).render("error", {
-//       error: "Error al crear un nuevo carrito",
-//       details: error.message,
-//     });
-//   }
-// });
-
 // Obtener el carrito del usuario autenticado
 webCartsRouter.get("/user-cart", loggedUserWeb, async (req, res) => {
   try {
@@ -102,52 +75,51 @@ webCartsRouter.get("/user-cart", loggedUserWeb, async (req, res) => {
 });
 
 // Ruta para actualizar un carrito
-webCartsRouter.put(
-  "/user-cart/:cartId/:productId",
+webCartsRouter.post(
+  "/user-cart/:productId",
   loggedUserWeb,
   async (req, res) => {
     try {
       const userId = req.user._id;
-      const cartId = req.params.cartId;
       const productId = req.params.productId;
-      const quantity = parseInt(req.body.quantity, 10);
+      const quantity = parseInt(req.body.quantity, 10) || 1;
 
       if (!quantity || isNaN(quantity) || quantity <= 0) {
-        return res
-          .status(400)
-          .json({ message: "La cantidad debe ser un número positivo" });
+        // Puedes manejar el error de validación aquí
+        return res.redirect("/products"); // Redirige a la página de productos
       }
 
-      const existingCartItem = await CartModel.findOne({
-        user: userId,
-        _id: cartId,
-        "cartItems.productId": productId,
-      });
+      // Buscar el carrito del usuario
+      let userCart = await CartModel.findOne({ user: userId });
+
+      // Si el usuario no tiene un carrito, créalo
+      if (!userCart) {
+        userCart = await CartModel.create({ user: userId });
+      }
+
+      // Buscar si el producto ya está en el carrito
+      const existingCartItem = userCart.cartItems.find(
+        (item) => item.productId === productId
+      );
 
       if (existingCartItem) {
-        const updatedCart = await CartModel.findOneAndUpdate(
-          { user: userId, _id: cartId, "cartItems.productId": productId },
-          { $inc: { "cartItems.$.quantity": quantity } },
-          { new: true, useFindAndModify: false }
-        );
-        res.json(updatedCart);
+        // Si el producto ya está en el carrito, actualiza la cantidad
+        existingCartItem.quantity += quantity;
       } else {
-        const updatedCart = await CartModel.findOneAndUpdate(
-          { user: userId, _id: cartId },
-          {
-            $push: {
-              cartItems: { productId, quantity },
-            },
-          },
-          { new: true, useFindAndModify: false }
-        );
-        res.json(updatedCart);
+        // Si el producto no está en el carrito, agrégalo
+        userCart.cartItems.push({ productId, quantity });
       }
+
+      // Guardar el carrito actualizado en la base de datos
+      await userCart.save();
+
+      // Redirige al usuario a la página del carrito después de actualizarlo
+      res.redirect("/user-cart");
     } catch (error) {
       console.error(error);
-      res.status(500).json({
-        message: "Error al actualizar el carrito",
-        error: error.message,
+      res.status(500).render("error", {
+        error: "Error al agregar el producto al carrito",
+        details: error.message,
       });
     }
   }
