@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { CartModel } from "../../models/CartsMongoose.js";
 import { loggedAdmin, loggedUserWeb } from "../../middlewares/auth.js";
-import { UserModel } from "../../models/User.js";
 
 export const webCartsRouter = Router();
 
@@ -92,7 +91,7 @@ webCartsRouter.get("/user-cart", loggedUserWeb, async (req, res) => {
     if (!userCart) {
       return res.status(404).json({ message: "Carrito no encontrado" });
     }
-    res.json(userCart);
+    res.render("carts.handlebars", { cart: userCart });
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -104,7 +103,7 @@ webCartsRouter.get("/user-cart", loggedUserWeb, async (req, res) => {
 
 // Ruta para actualizar un carrito
 webCartsRouter.put(
-  "/carts/:cartId/:productId",
+  "/user-cart/:cartId/:productId",
   loggedUserWeb,
   async (req, res) => {
     try {
@@ -155,7 +154,7 @@ webCartsRouter.put(
 );
 
 // Ruta para eliminar el carrito del usuario
-webCartsRouter.delete("/carts/:cartId", loggedUserWeb, async (req, res) => {
+webCartsRouter.delete("/user-cart/:cartId", loggedUserWeb, async (req, res) => {
   try {
     const userId = req.user._id;
     const cartId = req.params.cartId;
@@ -182,7 +181,7 @@ webCartsRouter.delete("/carts/:cartId", loggedUserWeb, async (req, res) => {
 
 // Ruta para eliminar un producto del carrito del usuario
 webCartsRouter.delete(
-  "/carts/:cartId/:productId",
+  "/user-cart/:cartId/:productId",
   loggedUserWeb,
   async (req, res) => {
     try {
