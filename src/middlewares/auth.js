@@ -27,3 +27,9 @@ export function loggedAdmin(req, res, next) {
 export function isAdmin(username, password) {
   return username === "admin@admin.com" && password === "admin1234";
 }
+
+export function attachUser(req, res, next) {
+  res.locals.registeredUser = req.user || null;
+  console.log(req.user);
+  next();
+}
