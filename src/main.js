@@ -38,6 +38,16 @@ app.use(authentication);
 app.use("/api", apiRouter);
 app.use("/", webRouter);
 
+// Exponer la función isCartEmpty al entorno de Handlebars
+app.locals.isCartEmpty = function (cartItems) {
+  return cartItems.length === 0;
+};
+
+// Exponer la función formatCurrency al entorno de Handlebars
+app.locals.formatCurrency = function (amount) {
+  return amount.toFixed(2);
+};
+
 // Inicio del servidor Express en el puerto especificado
 const server = app.listen(PORT, () => {
   console.log(

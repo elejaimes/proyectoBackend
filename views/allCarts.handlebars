@@ -1,14 +1,27 @@
-{{!-- <div class="card w-75" style="margin:0 auto">
-    <h5 class="card-header">Todos los Carritos</h5>
-    <div class="card-body" id="allCarts">
-        <table class="table table-hover">
-            <tbody id="cartList">
-            </tbody>
-        </table>
-    </div>
-    <div class="card-footer text-body-secondary" style="text-align:right;">
-        <button type="button" class="btn btn-warning" id="newCart">Nuevo Carrito</button>
-    </div>
+{{! allCarts.handlebars }}
+<div class="container mt-4" id="all-carts-container">
+  <h2 id="all-carts-title">Todos los Carritos</h2>
+
+  {{! Lista de todos los carritos }}
+  <ul class="list-group" id="all-carts-list">
+    {{#each carts}}
+      <li class="list-group-item" id="all-carts-item-{{this._id}}">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p>Usuario: {{this.user}}</p>
+            <p>Cantidad de Productos: {{this.cartItems.length}}</p>
+          </div>
+          <div>
+            <a
+              href="/allCarts/{{this._id}}"
+              class="btn btn-primary view-cart-btn"
+              data-cart-id="{{this._id}}"
+            >Ver Carrito</a>
+          </div>
+        </div>
+      </li>
+    {{/each}}
+  </ul>
 </div>
 
-<script type="text/javascript" src="/static/js/allCarts.js"></script> --}}
+<script src="../static/js/allCarts.js"></script>

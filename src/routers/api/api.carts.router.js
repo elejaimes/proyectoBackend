@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { CartModel } from "../../models/CartsMongoose.js";
+import { loggedAdmin, loggedUserApi } from "../../middlewares/auth.js";
 
 export const apiCartsRouter = Router();
 
 // Mostrar todos los carritos ("/api/carts")
-apiCartsRouter.get("/", async (req, res) => {
+apiCartsRouter.get("/", loggedAdmin, async (req, res) => {
   try {
     const populatedCarts = await CartModel.find()
       .populate({
@@ -22,23 +23,54 @@ apiCartsRouter.get("/", async (req, res) => {
   }
 });
 
-// Obtener un carrito por su ID ("/api/carts/:cid")
-apiCartsRouter.get("/:cid", async (req, res) => {
+// Obtener el carrito del usuario autenticado ("/api/carts")
+apiCartsRouter.get("/user-cart", loggedUserApi, async (req, res) => {
   try {
-    const { cid } = req.params;
-
-    const populatedCart = await CartModel.findById(cid)
+    const userId = req.user._id;
+    const userCart = await CartModel.findOne({ user: userId })
       .populate({
         path: "cartItems.productId",
         model: "products",
       })
       .lean();
 
-    if (!populatedCart) {
+    if (!userCart) {
+      return res.status(404).json({ message: "Carrito no encontrado" });
+    }
+    res.json(userCart);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error al obtener el carrito",
+      error: error.message,
+    });
+  }
+});
+
+// Obtener un carrito por su ID ("/api/carts/:cid")
+apiCartsRouter.get("/:cid", loggedUserApi, async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const userId = req.user._id;
+
+    const cart = await CartModel.findById(cid)
+      .populate({
+        path: "cartItems.productId",
+        model: "products",
+      })
+      .lean();
+
+    if (!cart) {
       return res.status(404).json({ message: "Carrito no encontrado" });
     }
 
-    res.json(populatedCart);
+    if (cart.user !== userId) {
+      return res.status(403).json({
+        message: "No tienes permisos para ver este carrito",
+      });
+    }
+
+    res.json(cart);
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -49,9 +81,14 @@ apiCartsRouter.get("/:cid", async (req, res) => {
 });
 
 // Ruta para crear un nuevo carrito vacío ("/api/carts/create-cart")
-apiCartsRouter.post("/", async (req, res) => {
+apiCartsRouter.post("/", loggedUserApi, async (req, res) => {
   try {
-    const createdCart = await CartModel.create(req.body);
+    // Crear un carrito asociado al usuario
+    const createdCart = await CartModel.create({ user: req.user._id });
+
+    // Asociar el ID del carrito al usuario
+    req.user.cart = createdCart._id;
+    await req.user.save();
     res.status(201).json(createdCart);
   } catch (error) {
     console.error(error);
@@ -75,8 +112,8 @@ apiCartsRouter.get("/categories", async (req, res) => {
   }
 });
 
-// Cargar producto a un carrito por ID con Id del producto y cantidad ("/api/carts/:cid/cartItems/:productId")
-apiCartsRouter.put("/:cid/:productId", async (req, res) => {
+// Cargar producto a un carrito por ID con Id del producto y cantidad ("/api/carts/:cid/:productId")
+apiCartsRouter.put("/:cid/:productId", loggedUserApi, async (req, res) => {
   try {
     const { cid, productId } = req.params;
     const quantity = req.body.quantity || 1;
@@ -115,9 +152,20 @@ apiCartsRouter.put("/:cid/:productId", async (req, res) => {
 });
 
 // Ruta para eliminar todos los productos del carrito ("/api/carts/:cid")
-apiCartsRouter.delete("/:cid", async (req, res) => {
+apiCartsRouter.delete("/:cid", loggedUserApi, async (req, res) => {
   try {
-    const deletedCart = await CartModel.findByIdAndDelete(req.params.cid);
+    const { cid } = req.params;
+    const userId = req.user._id;
+
+    // Verificar si el carrito pertenece al usuario autenticado
+    const cart = await CartModel.findOne({ _id: cid, user: userId });
+    if (!cart) {
+      return res.status(403).json({
+        message: "No tienes permisos para eliminar este carrito",
+      });
+    }
+
+    const deletedCart = await CartModel.findByIdAndDelete(cid);
 
     if (!deletedCart) {
       return res.status(404).json({ message: "Carrito no encontrado" });
@@ -130,10 +178,19 @@ apiCartsRouter.delete("/:cid", async (req, res) => {
   }
 });
 
-// Eliminar un producto del carrito por ID ("/api/carts/:cid/cartItems/:productId")
-apiCartsRouter.delete("/:cid/cartItems/:productId", async (req, res) => {
+// Eliminar un producto del carrito por ID ("/api/carts/:cid/:productId")
+apiCartsRouter.delete("/:cid/:productId", loggedUserApi, async (req, res) => {
   try {
     const { cid, productId } = req.params;
+    const userId = req.user._id;
+
+    // Verificar si el carrito pertenece al usuario autenticado
+    const cart = await CartModel.findOne({ _id: cid, user: userId });
+    if (!cart) {
+      return res.status(403).json({
+        message: "No tienes permisos para eliminar productos de este carrito",
+      });
+    }
 
     const cartItem = await CartModel.findOneAndUpdate(
       { _id: cid, "cartItems.productId": productId },
@@ -159,48 +216,3 @@ apiCartsRouter.delete("/:cid/cartItems/:productId", async (req, res) => {
     });
   }
 });
-
-// // Ruta para obtener todos los productos en el carrito ("/:cid/allCarts")
-// apiCartsRouter.get("/allCarts", async (req, res) => {
-//   try {
-//     const cartProducts = await CartModel.aggregate([
-//       //descompone el array cartItems del carrito, crea un documento separado para cada elemento
-//       { $unwind: "$cartItems" },
-//       //realiza una operación de unión
-//       {
-//         $lookup: {
-//           from: "products",
-//           localField: "cartItems.productId",
-//           foreignField: "_id",
-//           as: "productDetails",
-//         },
-//       },
-//       { $unwind: "$productDetails" },
-//       {
-//         $group: {
-//           _id: "$_id",
-//           cartItems: { $push: "$cartItems" },
-//           totalPrice: {
-//             $sum: {
-//               $multiply: ["$cartItems.quantity", "$productDetails.price"],
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           cartItems: 1,
-//           totalPrice: 1,
-//         },
-//       },
-//     ]);
-
-//     res.json(cartProducts[0]);
-//   } catch (error) {
-//     res.status(500).json({
-//       message: "Error al obtener los productos en el carrito",
-//       error: error.message,
-//     });
-//   }
-// });

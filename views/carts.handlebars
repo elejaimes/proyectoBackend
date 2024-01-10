@@ -1,10 +1,8 @@
-
-{{!-- Estructura del carrito --}}
 <div class="container mt-4" id="cart-container">
   <h2 id="cart-title">Detalle del Carrito</h2>
 
   {{!-- Si el carrito está vacío --}}
-  {{#if (eq cart.cartItems.length 0)}}
+  {{#if (isCartEmpty cart.cartItems)}}
     <p id="empty-cart-message">El carrito está vacío</p>
   {{else}}
     {{!-- Lista de productos en el carrito --}}
@@ -14,14 +12,14 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h5 id="product-title-{{this.productId._id}}">{{this.productId.title}}</h5>
-              <p>Precio: ${{this.productId.price}}</p>
+              <p>Precio: ${{formatCurrency this.productId.price}}</p>
             </div>
             <div class="quantity-section">
               <p id="quantity-label-{{this.productId._id}}">Cantidad: {{this.quantity}}</p>
-                <form action="/carts/{{cart._id}}/{{this.productId._id}}" method="POST" id="delete-form-{{this.productId._id}}">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-danger delete-btn" data-product-id="{{this.productId._id}}">Eliminar</button>
-                </form>
+              <form action="/carts/{{cart._id}}/{{this.productId._id}}" method="POST" id="delete-form-{{this.productId._id}}">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="btn btn-danger delete-btn" data-product-id="{{this.productId._id}}">Eliminar</button>
+              </form>
             </div>
           </div>
         </li>
@@ -30,7 +28,7 @@
 
     {{!-- Información total del carrito --}}
     <div class="mt-3">
-      <p id="total-label">Total: ${{calculateTotal cart.cartItems}}</p>
+      <p id="total-label">Total: ${{formatCurrency (calculateTotal cart.cartItems)}}</p>
     </div>
 
     {{!-- Enlace para volver a la página de productos --}}
@@ -39,39 +37,4 @@
 </div>
 
 
-
-
-
-
-
-
-
-
-
-{{!-- <div class="card">
-    <h5 class="card-header" id="cartId">Carrito ID:</h5>
-    <div class="card-body">
-        <h5 class="card-title">Productos seleccionados</h5>
-
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">Titulo</th>
-                    <th scope="col">Descripcion</th>
-                    <th scope="col">Categoría</th>
-                    <th scope="col">Precio</th>
-                    <th scope="col">Cantidad</th>
-                </tr>
-            </thead>
-            <tbody id="productList">
-            </tbody>
-
-        </table>
-
-    <div class="card-footer text-body-secondary" style="text-align:right;">
-        <button type="button" class="btn btn-danger" id="deleteCart">Eliminar Carrito</button>
-    </div>
-    </div>
-</div>
-
-<script defer type="text/javascript" src="/static/js/cart.js"></script> --}}
+<script src="../static/js/carts.js"></script>

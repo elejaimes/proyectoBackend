@@ -2,16 +2,20 @@ import { Schema, model } from "mongoose";
 import { randomUUID } from "crypto";
 import { comparePassword, hashearPassword } from "../utils/crypto.js";
 import { isAdmin } from "../middlewares/auth.js";
+import { CartModel } from "./CartsMongoose.js";
 
 const collection = "users";
 
 const userSchema = new Schema(
   {
     _id: { type: String, default: randomUUID(), required: true, unique: true },
-    email: { type: String, require: true },
+    email: { type: String, require: true, unique: true },
     password: { type: String, require: true },
     firstName: { type: String, require: true },
     lastName: { type: String, require: true },
+    age: { type: Number, require: true },
+    rol: { type: String, default: "user" },
+    cart: { type: String, ref: "carts", unique: true },
   },
   {
     strict: "throw",
@@ -30,10 +34,20 @@ const userSchema = new Schema(
         reqBody.password = await hashearPassword(reqBody.password);
         const registeredUser = await model(collection).create(reqBody);
 
+        // Crear un carrito asociado al usuario
+        const createdCart = await CartModel.create({
+          user: registeredUser._id,
+        });
+
+        // Asociar el ID del carrito al usuario
+        registeredUser.cart = createdCart._id;
+        await registeredUser.save();
+
         const registeredUserData = {
           email: registeredUser.email,
           firstName: registeredUser.firstName,
           lastName: registeredUser.lastName,
+          age: registeredUser.age,
           rol: "user",
         };
         return registeredUserData;
@@ -46,6 +60,7 @@ const userSchema = new Schema(
             email: "admin",
             firstName: "admin",
             lastName: "admin",
+            age: "admin",
             rol: "admin",
           };
         } else {
@@ -65,6 +80,7 @@ const userSchema = new Schema(
             email: registeredUser["email"],
             firstName: registeredUser["firstName"],
             lastName: registeredUser["lastName"],
+            age: registeredUser["age"],
             rol: "user",
           };
         }
@@ -91,6 +107,7 @@ const userSchema = new Schema(
           email: updatedUserPassword["email"],
           firstName: updatedUserPassword["firstName"],
           lastName: updatedUserPassword["lastName"],
+          age: updatedUserPassword["age"],
           rol: "user",
         };
       },

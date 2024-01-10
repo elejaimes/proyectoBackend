@@ -12,9 +12,15 @@ const cartItemSchema = new Schema({
 
 const cartSchema = new Schema(
   {
-    _id: { type: String, default: randomUUID(), required: true, unique: true },
+    _id: {
+      type: String,
+      default: () => randomUUID(),
+      required: true,
+      unique: true,
+    },
     status: { type: Boolean, default: true },
     cartItems: [cartItemSchema],
+    user: { type: String, ref: "users" },
   },
   {
     strict: "throw",
@@ -22,5 +28,5 @@ const cartSchema = new Schema(
   }
 );
 
-// Define el modelo de cartos y se exporta
+// Define el modelo de carritos y se exporta
 export const CartModel = model(collection, cartSchema);

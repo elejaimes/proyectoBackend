@@ -2,7 +2,15 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">Tienda de Postres</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -10,8 +18,10 @@
         <li class="nav-item">
           <a class="nav-link" href="/products">Productos</a>
         </li>
+        
         <li class="nav-item">
-          <a class="nav-link" href="/carts">Carrito</a>
+            <a class="nav-link" href="/user-cart">Carrito</a>
+
         </li>
       </ul>
 
@@ -20,9 +30,14 @@
         <div class="ml-auto">
           <div class="container mt-2 mb-4">
             <div class="alert alert-success" role="alert">
-              <p class="mb-0">Bienvenido, {{registeredUser.firstName}} {{registeredUser.lastName}}.</p>
+              <p class="mb-0">Bienvenido,
+                {{registeredUser.firstName}}
+                {{registeredUser.lastName}}.</p>
               <form action="/logout" method="POST">
-                <button type="submit" class="btn btn-outline-danger btn-sm">Cerrar sesión</button>
+                <button
+                  type="submit"
+                  class="btn btn-outline-danger btn-sm"
+                >Cerrar sesión</button>
               </form>
             </div>
           </div>
@@ -44,3 +59,4 @@
     </div>
   </div>
 </nav>
+
