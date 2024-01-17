@@ -1,12 +1,21 @@
-// Definición del puerto en el que se ejecutará el servidor
-export const PORT = 8080;
+import dotenv from "dotenv";
+import { Command } from "commander";
 
-// export const MONGODB_CNX_STR =
-//   "mongodb+srv://elejaimes:gatitos26@coderhouse.dwc12j1.mongodb.net/coderhouse"; // Conexión mongodb red
-export const MONGODB_CNX_STR = "mongodb://127.0.0.1:27017/coderhouse"; // conexión mongodb local
-export const SESSION_SECRET = "SecretCoder"; // ojo este es la palabra secreta para firmar la cookie deberia cambiarla y que sea segura en un caso real
+const program = new Command();
+program.option("-p, --prod", "execution environment", false).parse();
+const { prod } = program.opts();
 
-export const githubAppId = "732786";
-export const githubClientId = "Iv1.4a8f290ac81c977d";
-export const githubClientSecret = "3f39f0af7ce8b51f7146f06f988bbb5968ea2a6c";
-export const githubCallbackUrl = "http://localhost:8080/githubcallback";
+dotenv.config({
+  path: prod ? "./config/prod.env" : "./config/dev.env",
+});
+
+export const PORT = process.env.PORT;
+export const MODE = process.env.MODE;
+export const CNX_STR = process.env.CNX_STR;
+export const SESSION_SECRET = process.env.SESSION_SECRET;
+export const GH_APP_ID = process.env.GH_APP_ID;
+export const GH_CLIENT_ID = process.env.GH_CLIENT_ID;
+export const GH_CLIENT_SECRET = process.env.GH_CLIENT_SECRET;
+export const GH_CALLBACK_URL = process.env.GH_CALLBACK_URL;
+export const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;

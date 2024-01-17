@@ -90,7 +90,3 @@ document.addEventListener("DOMContentLoaded", function () {
     return total.toFixed(2); // Redondear a dos decimales
   }
 });
-
-function isCartEmpty(cartItems) {
-  return cartItems.length === 0;
-}

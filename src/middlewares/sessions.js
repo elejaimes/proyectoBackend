@@ -1,9 +1,9 @@
 import session from "express-session";
 import connectMongo from "connect-mongo";
-import { MONGODB_CNX_STR, SESSION_SECRET } from "../config.js";
+import { CNX_STR, SESSION_SECRET } from "../config.js";
 
 const store = connectMongo.create({
-  mongoUrl: MONGODB_CNX_STR,
+  mongoUrl: CNX_STR,
   ttl: 60 * 60 * 24, // 1d,
 });
 

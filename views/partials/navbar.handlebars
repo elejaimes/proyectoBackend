@@ -18,11 +18,20 @@
         <li class="nav-item">
           <a class="nav-link" href="/products">Productos</a>
         </li>
-        
-        <li class="nav-item">
-            <a class="nav-link" href="/user-cart">Carrito</a>
 
-        </li>
+        {{#if registeredUser}}
+          {{#if (isAdmin registeredUser)}}
+            <!-- Si el usuario es un administrador -->
+            <li class="nav-item">
+              <a class="nav-link" href="/allCarts">Carritos de Usuarios</a>
+            </li>
+          {{else}}
+            <!-- Si el usuario es un usuario normal -->
+            <li class="nav-item">
+              <a class="nav-link" href="/user-cart">Carrito</a>
+            </li>
+          {{/if}}
+        {{/if}}
       </ul>
 
       <!-- Incluir el contenido del userSection dentro del navbar -->
@@ -59,4 +68,3 @@
     </div>
   </div>
 </nav>
-

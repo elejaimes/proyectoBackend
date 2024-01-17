@@ -1,3 +1,5 @@
+import { ADMIN_PASSWORD, ADMIN_USERNAME } from "../config.js";
+
 export function loggedUserApi(req, res, next) {
   if (!req.isAuthenticated()) {
     return res
@@ -25,7 +27,7 @@ export function loggedAdmin(req, res, next) {
 }
 
 export function isAdmin(username, password) {
-  return username === "admin@admin.com" && password === "admin1234";
+  return username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
 }
 
 export function attachUser(req, res, next) {

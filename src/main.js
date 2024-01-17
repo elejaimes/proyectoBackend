@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { connect } from "mongoose";
-import { MONGODB_CNX_STR, PORT } from "./config.js";
+import { CNX_STR, PORT } from "./config.js";
 import { apiRouter } from "./routers/api/api.router.js";
 import { webRouter } from "./routers/web/web.router.js";
 import { engine } from "express-handlebars";
@@ -11,8 +11,8 @@ import { attachUser } from "./middlewares/auth.js";
 
 // Conexión a la Base de Datos
 try {
-  await connect(MONGODB_CNX_STR);
-  console.log("Base de datos conectada");
+  await connect(CNX_STR);
+  console.log(`Base de datos conectada a ${CNX_STR}`);
 } catch (error) {
   console.error("Error de conexión a la base de datos:", error.message);
   process.exit(1);
@@ -43,6 +43,11 @@ app.use("/", webRouter);
 // Exponer la función isCartEmpty al entorno de Handlebars
 app.locals.isCartEmpty = function (cartItems) {
   return cartItems.length === 0;
+};
+
+// Exponer la función isAdmin al entorno de Handlebars
+app.locals.isAdmin = function (registeredUser) {
+  return registeredUser.rol === "admin";
 };
 
 // Inicio del servidor Express en el puerto especificado

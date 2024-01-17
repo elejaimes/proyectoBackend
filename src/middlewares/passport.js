@@ -2,19 +2,15 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GithubStrategy } from "passport-github2";
 import { UserModel } from "../models/User.js";
-import {
-  githubCallbackUrl,
-  githubClientId,
-  githubClientSecret,
-} from "../config.js";
+import { GH_CALLBACK_URL, GH_CLIENT_ID, GH_CLIENT_SECRET } from "../config.js";
 
 passport.use(
   "github",
   new GithubStrategy(
     {
-      clientID: githubClientId,
-      clientSecret: githubClientSecret,
-      callbackURL: githubCallbackUrl,
+      clientID: GH_CLIENT_ID,
+      clientSecret: GH_CLIENT_SECRET,
+      callbackURL: GH_CALLBACK_URL,
     },
     async function verify(accessToken, refreshToken, profile, done) {
       console.log(profile);
