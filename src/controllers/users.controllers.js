@@ -1,4 +1,5 @@
 import passport from "passport";
+import { UserModel } from "../models/User.js";
 
 export async function login(req, res, next) {
   passport.authenticate(
@@ -40,4 +41,49 @@ export function logout(req, res) {
     }
     res.json({ status: "success", message: "Logout OK" });
   });
+}
+export async function register(req, res) {
+  try {
+    const registeredUser = await UserModel.register(req.body);
+
+    // Autenticar al usuario después del registro
+    req.login(registeredUser, (loginErr) => {
+      if (loginErr) {
+        return res
+          .status(400)
+          .json({ status: "error", message: loginErr.message });
+      }
+
+      return res
+        .status(201)
+        .json({ status: "success", payload: registeredUser });
+    });
+  } catch (error) {
+    res.status(400).json({ status: "error", message: error.message });
+  }
+}
+
+export async function resetPassword(req, res) {
+  try {
+    const updatedUserPassword = await UserModel.resetPassword(
+      req.body.email,
+      req.body.password
+    );
+    res.json({ status: "success", payload: updatedUserPassword });
+  } catch (error) {
+    res.status(404).json({ status: "error", message: error.message });
+  }
+}
+
+export async function getLoggedUser(req, res) {
+  const user = await UserModel.findOne(
+    { email: req.user.email },
+    { password: 0 }
+  ).lean();
+  res.json({ status: "success", payload: user });
+}
+
+export async function getAllUsers(req, res) {
+  const users = await UserModel.find().lean();
+  res.json({ status: "success", payload: users });
 }
