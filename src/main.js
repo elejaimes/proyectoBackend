@@ -8,6 +8,7 @@ import { engine } from "express-handlebars";
 import { sessions } from "./middlewares/sessions.js";
 import { authentication } from "./middlewares/passport.js";
 import { attachUser } from "./middlewares/auth.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 // Conexión a la Base de Datos
 try {
@@ -49,6 +50,9 @@ app.locals.isCartEmpty = function (cartItems) {
 app.locals.isAdmin = function (registeredUser) {
   return registeredUser.rol === "admin";
 };
+
+// Middleware de manejo de errores global
+app.use(errorHandler);
 
 // Inicio del servidor Express en el puerto especificado
 const server = app.listen(PORT, () => {

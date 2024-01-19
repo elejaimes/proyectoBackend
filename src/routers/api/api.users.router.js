@@ -1,5 +1,4 @@
 import { Router } from "express";
-import passport from "passport";
 import { UserModel } from "../../models/User.js";
 import { loggedAdmin, loggedUserApi } from "../../middlewares/auth.js";
 
