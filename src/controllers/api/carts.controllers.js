@@ -1,4 +1,4 @@
-import { CartModel } from "../models/CartsMongoose.js";
+import { CartModel } from "../../models/CartsMongoose.js";
 
 export async function showCarts(req, res, next) {
   try {

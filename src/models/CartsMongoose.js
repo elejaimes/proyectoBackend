@@ -159,6 +159,36 @@ const cartSchema = new Schema(
           );
         }
       },
+      updateCartItem: async function (userId, productId, quantity) {
+        try {
+          if (!quantity || isNaN(quantity) || quantity <= 0) {
+            throw new Error("Cantidad de producto no válida");
+          }
+
+          // Buscar el carrito del usuario
+          let userCart = await this.createCart(userId);
+
+          // Buscar si el producto ya está en el carrito
+          const existingCartItem = userCart.cartItems.find(
+            (item) => item.productId === productId
+          );
+
+          if (existingCartItem) {
+            // Si el producto ya está en el carrito, actualiza la cantidad
+            existingCartItem.quantity += quantity;
+          } else {
+            // Si el producto no está en el carrito, agrégalo
+            userCart.cartItems.push({ productId, quantity });
+          }
+
+          // Guardar el carrito actualizado en la base de datos
+          await userCart.save();
+
+          return userCart; // Puedes devolver el carrito actualizado si es necesario
+        } catch (error) {
+          throw new Error(`Error al actualizar el carrito: ${error.message}`);
+        }
+      },
     },
   }
 );

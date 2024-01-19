@@ -3,7 +3,7 @@ import {
   getCurrentUser,
   login,
   logout,
-} from "../../controllers/users.controllers.js";
+} from "../../controllers/api/users.controllers.js";
 
 export const apiSessionsRouter = Router();
 

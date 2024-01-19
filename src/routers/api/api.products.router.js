@@ -9,7 +9,7 @@ import {
   getProducts,
   modifyProductById,
   removeProductById,
-} from "../../controllers/products.controllers.js";
+} from "../../controllers/api/products.controllers.js";
 
 // Creación de una instancia de Router para manejar las rutas relacionadas con los productos
 export const apiProductsRouter = Router();

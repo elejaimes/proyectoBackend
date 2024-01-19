@@ -145,6 +145,84 @@ const productSchema = new Schema(
           );
         }
       },
+      getPaginatedProducts: async function (
+        page,
+        limit,
+        search,
+        sortField,
+        sortOrder,
+        category
+      ) {
+        try {
+          const categoryOptions = [
+            "Panadería",
+            "Pastelería",
+            "Postres",
+            "Repostería",
+            "Heladería",
+            "Bebidas",
+          ];
+
+          category =
+            category === "All"
+              ? [...categoryOptions]
+              : typeof category === "string"
+              ? category.split(",")
+              : categoryOptions;
+
+          const validSortFields = ["price", "status", "stock"];
+          if (!validSortFields.includes(sortField)) {
+            sortField = "price";
+          }
+
+          const sortBy = {};
+          sortBy[sortField] = sortOrder === "desc" ? -1 : 1;
+
+          const query = {
+            title: { $regex: search, $options: "i" },
+            category: { $in: category },
+          };
+
+          const products = await this.find(query)
+            .sort(sortBy)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean();
+
+          const total = await this.countDocuments(query);
+
+          const totalPages = Math.ceil(total / limit);
+          const hasPrevPage = page > 1;
+          const hasNextPage = page < totalPages;
+          const prevPage = hasPrevPage ? page - 1 : null;
+          const nextPage = hasNextPage ? page + 1 : null;
+          const pages = [];
+          for (let i = 1; i <= totalPages; i++) {
+            pages.push({
+              number: i,
+              link: `/products?page=${i}&limit=${limit}&search=${search}&category=${category.join(
+                ","
+              )}&sort=${sortField}&order=${sortOrder}`,
+              isActive: i === page,
+            });
+          }
+
+          return {
+            products,
+            total,
+            totalPages,
+            hasPrevPage,
+            hasNextPage,
+            prevPage,
+            nextPage,
+            pages,
+          };
+        } catch (error) {
+          throw new Error(
+            `Error al obtener los productos paginados: ${error.message}`
+          );
+        }
+      },
     },
   }
 );

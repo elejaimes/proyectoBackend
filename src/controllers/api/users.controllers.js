@@ -1,5 +1,5 @@
 import passport from "passport";
-import { UserModel } from "../models/User.js";
+import { UserModel } from "../../models/User.js";
 
 export async function login(req, res, next) {
   passport.authenticate(

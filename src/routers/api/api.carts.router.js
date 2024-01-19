@@ -8,7 +8,7 @@ import {
   showCartById,
   showCarts,
   showUserCart,
-} from "../../controllers/carts.controllers.js";
+} from "../../controllers/api/carts.controllers.js";
 
 export const apiCartsRouter = Router();
 

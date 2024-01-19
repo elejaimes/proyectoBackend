@@ -1,4 +1,4 @@
-import { ProductModel } from "../models/ProductsMongoose.js";
+import { ProductModel } from "../../models/ProductsMongoose.js";
 
 export async function getProducts(req, res, next) {
   try {
