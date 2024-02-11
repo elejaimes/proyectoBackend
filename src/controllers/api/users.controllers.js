@@ -1,5 +1,5 @@
 import passport from "passport";
-import { UserModel } from "../../models/User.js";
+import { UserService } from "../../services/users.service.js";
 
 export async function login(req, res, next) {
   passport.authenticate(
@@ -44,7 +44,7 @@ export function logout(req, res) {
 }
 export async function register(req, res) {
   try {
-    const registeredUser = await UserModel.register(req.body);
+    const registeredUser = await UserService.registerUser(req.body);
 
     // Autenticar al usuario después del registro
     req.login(registeredUser, (loginErr) => {
@@ -65,7 +65,7 @@ export async function register(req, res) {
 
 export async function resetPassword(req, res) {
   try {
-    const updatedUserPassword = await UserModel.resetPassword(
+    const updatedUserPassword = await UserService.resetUserPassword(
       req.body.email,
       req.body.password
     );
@@ -76,14 +76,19 @@ export async function resetPassword(req, res) {
 }
 
 export async function getLoggedUser(req, res) {
-  const user = await UserModel.findOne(
-    { email: req.user.email },
-    { password: 0 }
-  ).lean();
-  res.json({ status: "success", payload: user });
+  try {
+    const user = await UserService.getLoggedUser(req.user.email);
+    res.json({ status: "success", payload: user });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
 }
 
 export async function getAllUsers(req, res) {
-  const users = await UserModel.find().lean();
-  res.json({ status: "success", payload: users });
+  try {
+    const users = await UserService.getAllUsers();
+    res.json({ status: "success", payload: users });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: error.message });
+  }
 }

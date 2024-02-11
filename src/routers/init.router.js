@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { CartModel } from "../models/CartsMongoose.js";
-import { ProductModel } from "../models/ProductsMongoose.js";
 import { randomUUID } from "crypto";
+import { CartService } from "../services/carts.service.js";
+import { ProductService } from "../services/products.service.js";
 
 export const initRouter = Router();
 
@@ -581,8 +581,8 @@ const dataSet = [
 initRouter.get("/", async (req, res) => {
   try {
     // Elimina todos los documentos de las colecciones
-    await CartModel.deleteMany();
-    await ProductModel.deleteMany();
+    await CartService.deleteMany();
+    await ProductService.deleteMany();
 
     // Itera sobre el dataSet e inserta cada documento por separado
     for (const data of dataSet) {
@@ -590,7 +590,7 @@ initRouter.get("/", async (req, res) => {
       data._id = randomUUID();
 
       // Inserta el documento en la base de datos
-      await ProductModel.create(data);
+      await ProductService.createProduct(data);
       console.log("Documento insertado:", data.title);
     }
 

@@ -1,14 +1,11 @@
-import { Router } from "express";
+import { Router } from 'express'
 import {
-  getCategoriesPage,
-  getPaginatedProducts,
-  getProductDetailPage,
-} from "../../controllers/web/products.controllers.js";
+    getPaginatedProducts,
+    getProductDetailPage,
+} from '../../controllers/web/products.controllers.js'
 
-export const webProductsRouter = Router();
+export const webProductsRouter = Router()
 
-webProductsRouter.get("/products", getPaginatedProducts);
+webProductsRouter.get('/products', getPaginatedProducts)
 
-webProductsRouter.get("/categories", getCategoriesPage);
-
-webProductsRouter.get("/products/:pid", getProductDetailPage);
+webProductsRouter.get('/products/:pid', getProductDetailPage)

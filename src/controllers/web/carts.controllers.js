@@ -1,8 +1,8 @@
-import { CartModel } from "../../models/CartsMongoose.js";
+import { CartService } from "../../services/carts.service.js";
 
 export async function getAllCarts(req, res) {
   try {
-    const populatedCarts = await CartModel.showCarts();
+    const populatedCarts = await CartService.showCarts();
     res.render("allCarts.handlebars", { carts: populatedCarts });
   } catch (error) {
     console.error(error);
@@ -16,7 +16,7 @@ export async function getCartById(req, res) {
   try {
     const cartId = req.params.cartId;
 
-    const populatedCart = await CartModel.showCartById(
+    const populatedCart = await CartService.showCartById(
       cartId,
       req.user._id,
       req.user.rol
@@ -39,7 +39,7 @@ export async function getCartById(req, res) {
 export async function getUserCart(req, res) {
   try {
     const userId = req.user._id;
-    const userCart = await CartModel.showUserCart(userId);
+    const userCart = await CartService.showUserCart(userId);
 
     if (!userCart) {
       return res.status(404).json({ message: "Carrito no encontrado" });
@@ -60,7 +60,7 @@ export async function updateCart(req, res) {
     const productId = req.params.productId;
     const quantity = parseInt(req.body.quantity, 10) || 1;
 
-    const updatedCart = await CartModel.updateCartItem(
+    const updatedCart = await CartService.updateCartItem(
       userId,
       productId,
       quantity
@@ -83,7 +83,7 @@ export async function clearCart(req, res) {
   try {
     const cartId = req.params.cartId;
 
-    const updatedCart = await CartModel.deleteAllProducts(cartId);
+    const updatedCart = await CartService.deleteAllProducts(cartId);
 
     if (!updatedCart) {
       return res.status(404).render("error.handlebars");
@@ -103,7 +103,7 @@ export async function deleteProductFromCart(req, res) {
     const cartId = req.params.cartId;
     const productId = req.params.productId;
 
-    const updatedCart = await CartModel.deleteProduct(cartId, productId);
+    const updatedCart = await CartService.deleteProduct(cartId, productId);
 
     if (!updatedCart) {
       return res.status(404).render("error.handlebars");

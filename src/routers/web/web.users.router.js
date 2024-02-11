@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
-import { UserModel } from "../../models/User.js";
+import { UserService } from "../../services/users.service.js";
 
 export const webUsersRouter = Router();
 
@@ -30,7 +30,7 @@ webUsersRouter.get("/resetpassword", async (req, res) => {
 
 webUsersRouter.post("/resetpassword", async (req, res) => {
   try {
-    await UserModel.resetPassword(req.body.email, req.body.password);
+    await UserService.resetUserPassword(req.body.email, req.body.password);
     res.redirect("/login");
   } catch (error) {
     console.log(error);
